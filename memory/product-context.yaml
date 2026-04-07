@@ -1,25 +1,3 @@
-# Product Context Template
-# ========================
-# This file captures user/product-level context: personas, requirements, features, risks.
-# Sections are filled incrementally during Phase 01 (PRD Discovery).
-#
-# Structure Reference:
-# --------------------
-# stakeholders: Decision-makers and affected parties (role + person/team)
-# target_users: User personas (id: USR-XXX, persona, goals, pain_points, technical_level)
-# user_needs: What users need to accomplish (id: UN-XXX)
-# features: System capabilities (id: FTR-XXX, priority: P0|P1|P2, status: PENDING|IN_PROGRESS|COMPLETE)
-# requirements.non_functional: Performance, security, etc. (id: NFR-XXX, category, measurable_target)
-# risks: What could go wrong (id: R-XXX, likelihood/impact: LOW|MED|HIGH)
-# assumptions: What we're taking as given (id: A-XXX, validated: bool)
-# open_questions: Unknowns (id: OQ-XXX, status: OPEN|ANSWERED|DEFERRED, blocking: bool)
-# glossary: Domain-specific terms and definitions
-# notes: Free-form capture space
-#
-# ID Schema: USR-XXX (users), UN-XXX (needs), FTR-XXX (features), NFR-XXX (non-functional),
-#            R-XXX (risks), A-XXX (assumptions), OQ-XXX (open questions), P-XXX (personas)
-# See phases/01-prd-discovery.md Section 735-755 for full ID schema
-
 file_id: "product-context"
 schema_version: "2.0"
 last_updated: ""
@@ -45,7 +23,7 @@ features:
   - id: "FTR-001"
     description: ""
     priority: ""  # P0 | P1 | P2
-    status: ""    # PENDING | IN_PROGRESS | COMPLETE
+    status: ""    # PENDING | IN_PROGRESS | COMPLETE | REMOVED
 
 user_flows:
   - id: "FLW-001"

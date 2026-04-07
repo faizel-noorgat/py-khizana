@@ -72,7 +72,7 @@ AskUserQuestion({
 If the user selects "I'll describe it now", wait for their free-form input. Capture everything they say verbatim in `project-brief.yaml` under `raw_vision`.
 
 **Document in memory/project-brief.yaml:**
-Update `raw_vision` field with user's description verbatim. See template header for structure.
+Update `raw_vision` field. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -121,7 +121,7 @@ AskUserQuestion({
 **Follow-up (required):** Before documenting, ask at least one open-ended question based on their answers. Explore: who experiences this problem, why now, what exists today, what alternatives have been tried and why they fall short. Do not mark the task complete until you've captured context beyond the structured options.
 
 **Document in memory/project-brief.yaml:**
-Update `overview`, `current_landscape`, and `goals` fields. See template header for structure.
+Update `overview`, `current_landscape`, and `goals` fields. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -222,7 +222,7 @@ AskUserQuestion({
 **Follow-up (required):** After the user answers, ask at least one open-ended question to identify decision-makers, approvers, and any affected stakeholders not in the primary user list. Explore distinct segments if they exist. Do not mark the task complete until you've captured specific names/roles and their goals.
 
 **Document in memory/product-context.yaml:**
-Update `stakeholders`, `target_users`, and `user_needs` fields. See template header for structure.
+Update `stakeholders`, `target_users`, and `user_needs` fields. See `.claude/rules/product-context.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -272,7 +272,7 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to distinguish P0 (must-have) from P1 (important) and P2 (nice-to-have). Probe for non-functional requirements that have measurable targets. Ask: "What would you cut if we ran out of time?" to surface true priorities. Do not mark the task complete until priorities are grounded in user need, not wishful thinking.
 
 **Document in memory/product-context.yaml:**
-Update `features` and `requirements.non_functional` fields. See template header for structure.
+Update `features` and `requirements.non_functional` fields. See `.claude/rules/product-context.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -313,7 +313,7 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to capture anything users might expect that we won't deliver, and where this product ends and other systems begin. Ask: "What might a user ask for that we'd say 'no, that's not what this is for' to?" Do not mark the task complete until out-of-scope is as detailed as in-scope.
 
 **Document in memory/project-brief.yaml:**
-Update `scope.in_scope` and `scope.out_of_scope` fields. See template header for structure.
+Update `scope.in_scope` and `scope.out_of_scope` fields. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -366,7 +366,7 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to get specific, measurable targets where possible. Ask: "If we shipped but didn't hit [selected criteria], would you still launch?" to surface hidden requirements. Do not mark the task complete until each criterion has a concrete definition of "done."
 
 **Document in memory/project-brief.yaml:**
-Update `success_criteria` field with LAUNCH and OUTCOME items. See template header for structure.
+Update `success_criteria` field. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -417,7 +417,7 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to get specific details on any hard constraints or dependencies that could become blockers. Ask: "What would cause this project to fail that's outside our control?" Do not mark the task complete until constraints have dates/numbers and dependencies have owners.
 
 **Document in memory/project-brief.yaml:**
-Update `constraints` and `dependencies` fields. See template header for structure.
+Update `constraints` and `dependencies` fields. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -467,7 +467,7 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to draw out specific risks, underlying assumptions, and to triage any open questions as blocking or non-blocking. Ask: "What's the one thing that would derail this project if it went wrong?" Do not mark the task complete until risks have likelihood/impact and assumptions are explicitly stated.
 
 **Document in memory/product-context.yaml:**
-Update `risks`, `assumptions`, and `open_questions` fields. See template header for structure.
+Update `risks`, `assumptions`, and `open_questions` fields. See `.claude/rules/product-context.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
@@ -487,7 +487,7 @@ Capture domain-specific language, abbreviations, or terms that have specific mea
 Review the conversation and pull out any terms the user introduced that could be interpreted multiple ways. Confirm definitions with the user before documenting.
 
 **Document in memory/product-context.yaml:**
-Update `glossary` field. See template header for structure.
+Update `glossary` field. See `.claude/rules/product-context.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
