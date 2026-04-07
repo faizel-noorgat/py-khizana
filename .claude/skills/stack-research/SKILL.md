@@ -1,33 +1,32 @@
-# Skill: Stack Research
+---
+name: stack-research
+description: >
+  Research technology stack options for frontend, backend, database, and hosting layers.
+  Uses Context7 for library/framework documentation (authoritative, current) and WebSearch
+  for hosting/pricing research. Use when user says "/stack-research", "research tech stack",
+  "compare frameworks", "what technology should I use", or when executing Phase 03 Activity 1
+  (Tech Stack Selection). Outputs a structured research_summary with citations for use in
+  tech stack selection decisions.
+metadata:
+  phase: "03"
+  activity: "1"
+  companion_file: "phases/03-tech-stack-selection.md"
+---
+
+# Stack Research
 
 ## Invocation
+
+```
 /stack-research [context-file]
+```
 
-## Description
-Research technology stack options using Context7 (for libraries/frameworks) and WebSearch (for hosting/pricing). Returns structured findings with citations for use in tech stack selection.
-
-## When to Use
-- Phase 03 (Tech Stack Selection) Activity 1
-- When needing up-to-date technology research before proposing stack options
-- Any phase where current technology landscape needs investigation
+**Default context-file:** `memory/system-patterns.yaml`
 
 ## Prerequisites
+
 - `memory/system-patterns.yaml` exists with architecture context
 - Phase 02 complete (or equivalent architectural context available)
-
-## Input
-- **context-file**: Path to system patterns file (default: `memory/system-patterns.yaml`)
-- Research targets extracted from context-file:
-  - Deployment topology
-  - Quality attributes (MUST_HAVE items)
-  - Integration points
-  - Data storage requirements
-
-## Parameters
-
-| Parameter | Required | Default | Example |
-|-----------|----------|---------|---------|
-| context-file | No | `memory/system-patterns.yaml` | `memory/system-patterns.yaml` |
 
 ## Process
 

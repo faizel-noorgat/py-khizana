@@ -1,164 +1,185 @@
 ---
 name: doc-update
 description: >
-  Incrementally update Memory Bank files with findings from conversation. Handles
-  three scenarios: create new file, add new section, or append to existing section.
-  Use when user says "document this", "update the memory bank", "save findings",
-  "write to project-brief", or when completing a phase activity that produces
-  discoverable content. Also use when context compaction is imminent and findings
-  need checkpointing.
+  Incrementally update Memory Bank YAML files with findings from conversation.
+  Spawns an isolated sub-agent to prevent context pollution. Use when user says
+  "document this", "update the memory bank", "save findings", "write to
+  project-brief", or when completing a phase activity. Also use before context
+  compaction to checkpoint findings. Main context receives only brief summaries.
 ---
 
 # Document Update
 
-Update Memory Bank files incrementally. This skill prevents context loss during
-long discovery sessions by checkpointing findings as they emerge.
+Update Memory Bank YAML files incrementally by spawning an isolated sub-agent.
+This prevents context pollution from reading entire files and rules.
 
-## When to Use
+## Architecture
 
-- **End of phase activity** - After completing any discovery/planning conversation
-- **Before context compaction** - When findings need preservation
-- **User request** - When user says "document this" or "save to memory bank"
-- **Agent workflow** - Phase agents call this to checkpoint incremental progress
+**Why spawn a sub-agent:**
+- Memory Bank files are updated 10+ times per phase
+- Each update would read the same 250+ line rules file
+- Each update would read the same 100+ line YAML file
+- This accumulates in main context, wasting tokens
 
-## Process
+**Solution:**
+- Spawn a sub-agent with its own isolated context window
+- Sub-agent reads rules + document once, applies edit, returns brief summary
+- Main context never sees the full rules file or document content
 
-### 1. Identify Target
+## Invocation Pattern
 
-Parse the request to determine:
-- **file_path** - Which Memory Bank file (e.g., `memory/project-brief.md`)
-- **section_name** - Which section to update (e.g., `Goals`, `Constraints`)
-- **content** - Extract from conversation context (not passed as argument)
-
-### 2. Detect Scenario
-
-Read the target file and determine which scenario applies:
-
-| Condition | Scenario | Tool |
-|-----------|----------|------|
-| File doesn't exist | Create | `Write` |
-| File exists, section missing | Add | `Edit` |
-| File exists, section present | Append/Replace | `Edit` |
-
-**Why this matters:** Each scenario requires different tool usage. Create builds
-structure from scratch. Add extends existing structure. Append preserves existing
-content while adding new findings.
-
-### 3. Extract Content
-
-Content comes from conversation context - review what was discussed:
-
-- Identify the key findings for this topic
-- Structure appropriately: lists for Goals/Constraints, prose for Overview
-- Use IDs where expected (G-001, C-001, etc.)
-
-### 4. Apply Tool
-
-#### Scenario 1: File Doesn't Exist
-
-Use `Write` to create:
+When this skill is triggered, spawn a sub-agent using the Agent tool:
 
 ```
-Write(
-  file_path: "memory/project-brief.md",
-  content: """# Project Brief
+Agent(
+  subagent_type: "general-purpose",
+  description: "Update memory bank file",
+  prompt: """
+  You are a Document Update Agent. Update a Memory Bank YAML file.
 
-## Overview
-[Content from conversation]
+  ## Target
+  File: {file_path}
+  Section: {section_name}
+  Content to add: {content_summary}
 
-## Goals
-- id: "G-001"
-  description: "[First goal from conversation]"
+  ## Token-Saving Workflow (REQUIRED)
 
----
-*Last updated: [date]*
-"""
+  DO NOT read entire files. Follow this sequence:
+
+  ### Step 1: Grep Headers
+  Use Grep to find YAML headers and their line positions:
+  - pattern: "^[a-zA-Z_]+:"
+  - output_mode: "content"
+  - path: {file_path}
+
+  This returns a table like:
+  | Line | Header |
+  |------|--------|
+  | 1    | file_id |
+  | 22   | features |
+  | 35   | requirements |
+
+  ### Step 2: Calculate Line Range
+  From the grep output, identify the target section's start line.
+  The next header's line minus 1 is the section's end line.
+
+  Example: If target is "features" at line 22, and next header is
+  "requirements" at line 35, read lines 22-34 (offset 22, limit 13).
+
+  ### Step 3: Read Only Needed Lines
+  Use Read with offset/limit, NOT the entire file:
+  - offset: {section_start_line}
+  - limit: {section_end_line - section_start_line + 1}
+
+  ### Step 4: Read Relevant Rules Section
+  Rules files are in `.claude/rules/`. Match the section name.
+  Use the same grep + selective read pattern on the rules file.
+
+  Rules file mapping:
+  - project-brief.yaml → .claude/rules/project-brief.md
+  - product-context.yaml → .claude/rules/product-context.md
+
+  ### Step 5: Apply Edit
+  Use Edit tool to update the section. Preserve existing content,
+  append new items, or replace placeholder content.
+
+  ### Step 6: Return Summary
+  Return ONLY a brief summary (max 50 words):
+  - File updated
+  - Section updated
+  - Items added/replaced
+  - No full document content
+
+  ## Example Output
+  "Updated memory/product-context.yaml → features section with 3 new items (FTR-002, FTR-003, FTR-004)"
+
+  ## Error Handling
+  If section doesn't exist: Add it after the last section.
+  If old_string not unique: Include more context lines.
+  If file doesn't exist: Use Write tool to create it.
+  """
 )
 ```
 
-#### Scenario 2: File Exists, Section Missing
+## Arguments Passed to Skill
 
-Use `Edit` to add section after the last existing section:
+The skill receives two arguments:
+1. **file_path** - Memory Bank file (e.g., `memory/project-brief.yaml`)
+2. **section_name** - Section to update (e.g., `Goals`, `Constraints`)
 
-```
-Edit(
-  file_path: "memory/project-brief.md",
-  old_string: "---\n*Last updated: ...*",
-  new_string: """## Constraints
-- id: "C-001"
-  description: "[New constraint from conversation]"
+The content is extracted from conversation context - review what was discussed
+with the user before the skill was invoked.
 
----
-*Last updated: [new date]*
-"""
-)
-```
+## Extracting Content
 
-#### Scenario 3: Section Exists
-
-**If placeholder content:** Replace entirely
-**If real content:** Append new items while preserving existing
-
-```
-Edit(
-  file_path: "memory/project-brief.md",
-  old_string: """## Goals
-- id: "G-001"
-  description: "Existing goal"""",
-  new_string: """## Goals
-- id: "G-001"
-  description: "Existing goal"
-- id: "G-002"
-  description: "[New goal from conversation]""""
-)
-```
-
-### 5. Confirm
-
-Report what was updated:
-- File path
-- Section name
-- Brief summary of content added
+Before spawning the sub-agent:
+1. Review the conversation context
+2. Identify key findings for the target section
+3. Structure appropriately:
+   - Lists with IDs for Goals/Constraints/Features (G-001, C-001, FTR-001)
+   - Prose for Overview
+   - Two-part structure for Scope (in_scope, out_of_scope)
+4. Pass as `{content_summary}` in the prompt
 
 ## Section Formats
 
-Common Memory Bank sections follow predictable formats. Match the expected structure:
+| Section | Document | Format |
+|---------|----------|--------|
+| raw_vision | project-brief.yaml | Prose (verbatim from user) |
+| overview | project-brief.yaml | 1-2 sentence prose |
+| goals | project-brief.yaml | List with IDs: G-001, G-002... |
+| scope | project-brief.yaml | in_scope list, out_of_scope list |
+| success_criteria | project-brief.yaml | List with IDs: SC-001... |
+| constraints | project-brief.yaml | List with IDs: C-001... |
+| dependencies | project-brief.yaml | List with IDs: DEP-001... |
+| stakeholders | product-context.yaml | List with roles and goals |
+| target_users | product-context.yaml | List with persona details |
+| features | product-context.yaml | List with FTR-XXX IDs |
+| requirements | product-context.yaml | non_functional list with NFR-XXX IDs |
+| risks | product-context.yaml | List with R-XXX IDs |
+| assumptions | product-context.yaml | List with A-XXX IDs |
+| open_questions | product-context.yaml | List with OQ-XXX IDs |
+| glossary | product-context.yaml | Key-value pairs |
+| user_personas | product-context.yaml | Structured persona objects |
+| user_stories | product-context.yaml | List with US-XXX IDs |
 
-| Section | Format |
-|---------|--------|
-| Overview | 1-2 sentence prose description |
-| Goals | `- id: "G-XXX" description: "..."` |
-| Constraints | `- id: "C-XXX" description: "..."` |
-| Success Criteria | `- id: "S-XXX" description: "..."` |
-| Scope | Two lists: In-scope, Out-of-scope |
-| Target Users | Bullet list with persona details |
-| Features | P0/P1/P2 priority tiers |
-| Risks | Table: Risk, Likelihood, Impact, Mitigation |
+## Rules File Mapping
 
-## Error Handling
-
-| Error | Resolution |
-|-------|------------|
-| `old_string` not unique | Include more context lines for unique match |
-| Section spans many lines | Match the section header and first item only |
-| File permission denied | Report error, ask user for intervention |
-| Content exceeds reasonable length | Summarize, note "see conversation for full details" |
+| Document | Rules File | Sections |
+|----------|------------|----------|
+| project-brief.yaml | .claude/rules/project-brief.md | raw_vision, overview, goals, scope, success_criteria, constraints, dependencies |
+| product-context.yaml | .claude/rules/product-context.md | stakeholders, target_users, features, requirements, risks, assumptions, open_questions, glossary, user_personas, user_stories |
 
 ## Example
 
-**User says:** "We discussed the core goals - save those to project-brief"
+**Phase agent completes a discovery conversation:**
 
-**Agent actions:**
-1. Parse: file_path = `memory/project-brief.md`, section = `Goals`
-2. Read file: exists with Overview section, Goals section missing
-3. Extract content: 3 goals from conversation with IDs G-001, G-002, G-003
-4. Edit: Add Goals section after Overview
-5. Confirm: "Updated project-brief.md → Goals with 3 items"
+```
+Skill(skill: "doc-update", args: "memory/project-brief.yaml raw_vision")
+```
+
+**Skill spawns sub-agent:**
+- Grep finds headers in project-brief.yaml
+- Calculates line range for raw_vision (e.g., lines 6-15)
+- Reads lines 6-15 only (not entire 50-line file)
+- Reads rules section for raw_vision only (not entire 246-line rules file)
+- Applies edit
+- Returns: "Updated memory/project-brief.yaml → raw_vision with user's project description"
+
+**Main context receives:**
+Only the brief summary. Rules file and document content stay in sub-agent's isolated context.
+
+## Token Savings
+
+| Scenario | Old Approach | New Approach | Savings |
+|----------|--------------|--------------|---------|
+| 10 updates per phase | 10 × (250 rules + 100 doc) = 3500 lines | 10 × (20 section + 50 rules section) = 700 lines | ~80% |
+| Single update | Full rules file in main context | Rules in sub-agent only | 100% of rules tokens |
 
 ## Why This Matters
 
-Memory Bank files persist across sessions. Incremental updates mean:
-- Findings are captured before context compaction erases them
-- Each phase builds on documented discoveries
-- Handoffs to future sessions have complete context
-- No need to re-derive what was already discovered
+Memory Bank files persist across sessions. This architecture:
+- Captures findings without polluting main context
+- Enables 10+ updates per phase without token exhaustion
+- Keeps main conversation focused on user dialogue
+- Sub-agents handle document I/O in isolation
