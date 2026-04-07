@@ -125,7 +125,7 @@ Update `overview`, `current_landscape`, and `goals` fields. See `.claude/rules/p
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/project-brief.yaml Overview and Goals")
+Skill(skill: "doc-update", args: "memory/project-brief.yaml overview current_landscape goals")
 ```
 
 **Complete:** `TaskUpdate(subject: "Understand the Problem", status: "completed")`
@@ -174,11 +174,6 @@ The skill will:
 4. Iterate based on feedback
 5. Save approved stories to product-context.yaml
 
-**Document using /doc-update skill:**
-```
-Skill(skill: "doc-update", args: "memory/product-context.yaml Personas and User Stories")
-```
-
 **Confirm (required):** Before marking complete, summarize the personas and user stories in plain language and ask: "Does this accurately reflect the users you're building for and what they need? Anything missing or wrong?" Only mark `completed` after the user confirms or corrects.
 
 **Complete:** `TaskUpdate(subject: "Generate Personas and Stories", status: "completed")`
@@ -226,7 +221,7 @@ Update `stakeholders`, `target_users`, and `user_needs` fields. See `.claude/rul
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/product-context.yaml Stakeholders and Users")
+Skill(skill: "doc-update", args: "memory/product-context.yaml stakeholders target_users user_needs")
 ```
 
 **Complete:** `TaskUpdate(subject: "Map Stakeholders and Users", status: "completed")`
@@ -272,11 +267,11 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to distinguish P0 (must-have) from P1 (important) and P2 (nice-to-have). Probe for non-functional requirements that have measurable targets. Ask: "What would you cut if we ran out of time?" to surface true priorities. Do not mark the task complete until priorities are grounded in user need, not wishful thinking.
 
 **Document in memory/product-context.yaml:**
-Update `features` and `requirements.non_functional` fields. See `.claude/rules/product-context.md` for completion rules.
+Update `features` and `non_functional` fields. See `.claude/rules/product-context.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/product-context.yaml Features and Requirements")
+Skill(skill: "doc-update", args: "memory/product-context.yaml features non_functional")
 ```
 
 **Confirm (required):** Before marking complete, summarize the features and requirements in plain language and ask: "Does this capture everything the system must do? Any requirements that are missing or don't belong?" Only mark `completed` after the user confirms or corrects.
@@ -313,11 +308,11 @@ AskUserQuestion({
 **Follow-up (required):** Ask at least one open-ended question to capture anything users might expect that we won't deliver, and where this product ends and other systems begin. Ask: "What might a user ask for that we'd say 'no, that's not what this is for' to?" Do not mark the task complete until out-of-scope is as detailed as in-scope.
 
 **Document in memory/project-brief.yaml:**
-Update `scope.in_scope` and `scope.out_of_scope` fields. See `.claude/rules/project-brief.md` for completion rules.
+Update `in_scope` and `out_of_scope` fields. See `.claude/rules/project-brief.md` for completion rules.
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/project-brief.yaml Scope")
+Skill(skill: "doc-update", args: "memory/project-brief.yaml in_scope out_of_scope")
 ```
 
 **Confirm (required):** Before marking complete, summarize the scope boundaries in plain language and ask: "Are you comfortable saying 'no' to everything in the out-of-scope list? Anything that should move into scope?" Only mark `completed` after the user confirms or corrects.
@@ -370,7 +365,7 @@ Update `success_criteria` field. See `.claude/rules/project-brief.md` for comple
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/project-brief.yaml Success Criteria")
+Skill(skill: "doc-update", args: "memory/project-brief.yaml success_criteria")
 ```
 
 **Complete:** `TaskUpdate(subject: "Define Success Criteria", status: "completed")`
@@ -421,7 +416,7 @@ Update `constraints` and `dependencies` fields. See `.claude/rules/project-brief
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/project-brief.yaml Constraints and Dependencies")
+Skill(skill: "doc-update", args: "memory/project-brief.yaml constraints dependencies")
 ```
 
 **Complete:** `TaskUpdate(subject: "Identify Constraints and Dependencies", status: "completed")`
@@ -471,7 +466,7 @@ Update `risks`, `assumptions`, and `open_questions` fields. See `.claude/rules/p
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/product-context.yaml Risks Assumptions and Open Questions")
+Skill(skill: "doc-update", args: "memory/product-context.yaml risks assumptions open_questions")
 ```
 
 **Complete:** `TaskUpdate(subject: "Surface Risks, Assumptions, and Open Questions", status: "completed")`
@@ -491,7 +486,7 @@ Update `glossary` field. See `.claude/rules/product-context.md` for completion r
 
 **Document using /doc-update skill:**
 ```
-Skill(skill: "doc-update", args: "memory/product-context.yaml Glossary")
+Skill(skill: "doc-update", args: "memory/product-context.yaml glossary")
 ```
 
 **Complete:** `TaskUpdate(subject: "Establish Key Terms", status: "completed")`
@@ -568,9 +563,9 @@ This will route back to `phases/01-prd-discovery.md` via the `on_incomplete` pat
 
 ## Output Files
 
-1. `memory-bank/project-brief.yaml` — Goals, scope boundaries, constraints, dependencies, success criteria
-2. `memory-bank/product-context.yaml` — Users, stakeholders, requirements, features, risks, assumptions, glossary
-3. `memory-bank/current-state.yaml` — Phase complete, ready for Phase 02
+1. `memory/project-brief.yaml` — Goals, scope boundaries, constraints, dependencies, success criteria
+2. `memory/product-context.yaml` — Users, stakeholders, requirements, features, risks, assumptions, glossary
+3. `memory/current-state.yaml` — Phase complete, ready for Phase 02
 
 ## Exit Criteria
 

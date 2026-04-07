@@ -197,16 +197,33 @@ This step is where the real discovery happens — the user often realizes they w
 
 After user confirms their feature selections, save to `memory/product-context.yaml`:
 
+**Write two sections:**
+
+1. **`features_discovered`** — Archive of discovery session (all features explored):
 ```yaml
 features_discovered:
   - id: "FTR-001"
     name: "Series Tracker"
     description: "See book series order and spot missing volumes"
-    status: "WANTED"  # WANTED | MAYBE | NOT_NEEDED
-    priority: "HIGH"
+    discovery_status: "WANTED"  # WANTED | MAYBE | NOT_NEEDED
+    priority_hint: "HIGH"  # HIGH | MEDIUM | LOW
     requested_by: ["P-001"]
     user_stories: ["US-001"]
+```
 
+2. **`features`** — Active working list (only WANTED features, converted to project priorities):
+```yaml
+features:
+  - id: "FTR-001"
+    description: "Series Tracker - See book series order and spot missing volumes"
+    priority: "P0"  # HIGH hint → P0, MEDIUM hint → P1, LOW/no hint → P2
+    status: "PENDING"  # All new features start as PENDING
+    requested_by: ["P-001"]
+    user_stories: ["US-001"]
+```
+
+3. **`user_stories`** — All stories generated:
+```yaml
 user_stories:
   - id: "US-001"
     persona: "P-001"
@@ -218,7 +235,18 @@ user_stories:
     priority: "HIGH"
 ```
 
-Announce: "Identified [N] features. [X] marked as wanted, [Y] as maybe. Ready for next phase."
+**Priority conversion rule:**
+| discovery_status | priority_hint | features priority |
+|------------------|---------------|-------------------|
+| WANTED | HIGH | P0 |
+| WANTED | MEDIUM | P1 |
+| WANTED | LOW or none | P2 |
+| MAYBE | (any) | Not added to features |
+| NOT_NEEDED | (any) | Not added to features |
+
+**Note:** MAYBE features stay in `features_discovered` for future review but are not added to the active `features` list.
+
+Announce: "Identified [N] features. [X] marked as WANTED (added to features), [Y] as MAYBE (archived for review). Ready for next phase."
 
 ## Example
 

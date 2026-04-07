@@ -85,6 +85,41 @@ user_needs:
 
 ---
 
+---
+
+## features_discovered
+
+**When:** Section 3-4 - Generate Personas and User Stories (output from /generate-user-stories skill)
+
+**How to complete:**
+- Archive of all features explored during discovery session
+- Preserves WANTED, MAYBE, and NOT_NEEDED status for future review
+- MAYBE features can be reconsidered later; NOT_NEEDED documents what was explicitly rejected
+- ID format: `FTR-001`, `FTR-002`, etc. (matches corresponding `features` entries)
+- `discovery_status`: WANTED | MAYBE | NOT_NEEDED
+- `priority_hint`: HIGH | MEDIUM | LOW
+
+**Example:**
+```yaml
+features_discovered:
+  - id: "FTR-001"
+    name: "Series Tracker"
+    description: "See book series order and spot missing volumes"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001"]
+    user_stories: ["US-001"]
+  - id: "FTR-002"
+    name: "Duplicate Finder"
+    description: "Identify same file downloaded multiple times"
+    discovery_status: "MAYBE"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-001", "P-003"]
+    user_stories: ["US-003"]
+```
+
+---
+
 ## features
 
 **When:** Section 6 - Capture Requirements
@@ -146,11 +181,14 @@ user_flows:
 
 ---
 
-## requirements.functional
+## requirements
 
-**When:** Section 6 - Capture Requirements (if formal specs needed)
+**When:** Section 6 - Capture Requirements
 
 **How to complete:**
+
+### functional
+
 - Detailed functional requirements when features need decomposition
 - Use when P0 feature is complex or ambiguous
 - ID format: `FR-001`, `FR-002`, etc.
@@ -168,13 +206,8 @@ requirements:
       status: "PENDING"
 ```
 
----
+### non_functional
 
-## requirements.non_functional
-
-**When:** Section 6 - Capture Requirements
-
-**How to complete:**
 - Performance, security, accessibility, compliance requirements
 - Each must have a **measurable_target** (not vague terms)
 - Category: PERFORMANCE | SECURITY | ACCESSIBILITY | COMPLIANCE

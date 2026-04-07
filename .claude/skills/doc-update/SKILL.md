@@ -127,15 +127,20 @@ Before spawning the sub-agent:
 |---------|----------|--------|
 | raw_vision | project-brief.yaml | Prose (verbatim from user) |
 | overview | project-brief.yaml | 1-2 sentence prose |
+| current_landscape | project-brief.yaml | Prose describing what exists today |
 | goals | project-brief.yaml | List with IDs: G-001, G-002... |
-| scope | project-brief.yaml | in_scope list, out_of_scope list |
+| in_scope | project-brief.yaml | List under scope: key |
+| out_of_scope | project-brief.yaml | List under scope: key |
 | success_criteria | project-brief.yaml | List with IDs: SC-001... |
 | constraints | project-brief.yaml | List with IDs: C-001... |
 | dependencies | project-brief.yaml | List with IDs: DEP-001... |
 | stakeholders | product-context.yaml | List with roles and goals |
 | target_users | product-context.yaml | List with persona details |
+| user_needs | product-context.yaml | List with UN-XXX IDs |
 | features | product-context.yaml | List with FTR-XXX IDs |
-| requirements | product-context.yaml | non_functional list with NFR-XXX IDs |
+| features_discovered | product-context.yaml | Archive of discovery session with discovery_status |
+| functional | product-context.yaml | List with FR-XXX IDs under requirements: key |
+| non_functional | product-context.yaml | List with NFR-XXX IDs under requirements: key |
 | risks | product-context.yaml | List with R-XXX IDs |
 | assumptions | product-context.yaml | List with A-XXX IDs |
 | open_questions | product-context.yaml | List with OQ-XXX IDs |
@@ -143,12 +148,43 @@ Before spawning the sub-agent:
 | user_personas | product-context.yaml | Structured persona objects |
 | user_stories | product-context.yaml | List with US-XXX IDs |
 
+## Nested Field Handling
+
+Some sections are nested under parent keys in YAML:
+
+| Section | Parent Key | Document |
+|---------|------------|----------|
+| in_scope | scope: | project-brief.yaml |
+| out_of_scope | scope: | project-brief.yaml |
+| functional | requirements: | product-context.yaml |
+| non_functional | requirements: | product-context.yaml |
+
+**Workflow for nested fields:**
+
+1. **Grep for parent key first** — Use pattern `^scope:` or `^requirements:` to find the parent section start line
+2. **Read full parent section** — From parent line to next top-level key (determined by next grep result)
+3. **Edit within nested content** — The old_string should include enough context to uniquely identify the nested key (e.g., include `scope:` and `in_scope:` when editing in_scope)
+
+**Example for updating in_scope:**
+```
+old_string: "scope:\n  in_scope:\n    - \"\""
+new_string: "scope:\n  in_scope:\n    - \"Personal book library tracking\"\n    - \"Reading history and progress\""
+```
+
+**Rules file handling:**
+
+Rules files are markdown (.md), not YAML. Use a different grep pattern:
+- For top-level sections: `^## [a-zA-Z_]+` (matches `## scope`, `## goals`)
+- For nested subsections: `^### [a-zA-Z_]+` (matches `### in_scope`, `### non_functional`)
+
+When updating a nested field like `in_scope`, grep the rules file for `### in_scope` to find the subsection directly.
+
 ## Rules File Mapping
 
 | Document | Rules File | Sections |
 |----------|------------|----------|
-| project-brief.yaml | .claude/rules/project-brief.md | raw_vision, overview, goals, scope, success_criteria, constraints, dependencies |
-| product-context.yaml | .claude/rules/product-context.md | stakeholders, target_users, features, requirements, risks, assumptions, open_questions, glossary, user_personas, user_stories |
+| project-brief.yaml | .claude/rules/project-brief.md | raw_vision, overview, current_landscape, goals, in_scope, out_of_scope, success_criteria, constraints, dependencies |
+| product-context.yaml | .claude/rules/product-context.md | stakeholders, target_users, user_needs, features, features_discovered, functional, non_functional, risks, assumptions, open_questions, glossary, user_personas, user_stories |
 
 ## Example
 
