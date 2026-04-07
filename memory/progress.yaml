@@ -1,0 +1,243 @@
+file_id: "progress"
+schema_version: "2.0"
+last_updated: ""
+updated_by: ""  # claude | human
+
+# ─── PHASE GATES ────────────────────────────────────────────────────────────
+phase_gates:
+  - phase: "01-PRD_DISCOVERY"
+    status: "ACTIVE"        # LOCKED | ACTIVE | COMPLETE
+    human_approved: false
+    approved_at: ""
+    completion_checks:
+      prd_discovery:
+        complete: false
+        on_incomplete: "phases/01-prd-discovery.md"
+        on_complete: "phases/01-prd-review.md"
+      prd_review:
+        complete: false
+        on_incomplete: "phases/01-prd-review.md"
+        on_complete: "phases/02-high-level-spec.md"
+    exit_criteria:
+      - id: "EC-01-001"
+        description: "Problem and current landscape understood"
+        status: ""          # PASS | FAIL | PENDING
+      - id: "EC-01-002"
+        description: "Stakeholders and user personas defined"
+        status: ""
+      - id: "EC-01-003"
+        description: "Requirements captured and prioritized P0/P1/P2"
+        status: ""
+      - id: "EC-01-004"
+        description: "Scope boundaries explicit"
+        status: ""
+      - id: "EC-01-005"
+        description: "Launch and outcome criteria established"
+        status: ""
+      - id: "EC-01-006"
+        description: "Constraints and dependencies documented"
+        status: ""
+      - id: "EC-01-007"
+        description: "Risks identified"
+        status: ""
+      - id: "EC-01-008"
+        description: "Blocking open questions resolved"
+        status: ""
+      - id: "EC-01-009"
+        description: "Human approved PRD and transition to Phase 02"
+        status: ""
+
+  - phase: "02-HIGH_LEVEL_SPEC"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks:
+      hld:
+        complete: false
+        on_incomplete: "phases/02-high-level-spec.md"
+        on_complete: "phases/03-tech-stack-selection.md"
+    exit_criteria:
+      - id: "EC-02-001"
+        description: "System architecture defined"
+        status: ""
+      - id: "EC-02-002"
+        description: "Component overview complete"
+        status: ""
+      - id: "EC-02-003"
+        description: "Integration points identified"
+        status: ""
+      - id: "EC-02-004"
+        description: "Human approved and transition to Phase 03"
+        status: ""
+
+  - phase: "03-TECH_STACK_SELECTION"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks:
+      tech_selection:
+        complete: false
+        on_incomplete: "phases/03-tech-stack-selection.md"
+        on_complete: "phases/03a-tech-stack-review.md"
+      tech_stack_review:
+        complete: false
+        on_incomplete: "phases/03a-tech-stack-review.md"
+        on_complete: "phases/03b-tech-stack-code-standards.md"
+      code_standards:
+        complete: false
+        on_incomplete: "phases/03b-tech-stack-code-standards.md"
+        on_complete: "phases/04-backend-lld.md"
+    exit_criteria:
+      - id: "EC-03-001"
+        description: "Options evaluated"
+        status: ""
+      - id: "EC-03-002"
+        description: "Stack selected and documented"
+        status: ""
+      - id: "EC-03-003"
+        description: "Tech stack reviewed for feasibility"
+        status: ""
+      - id: "EC-03-004"
+        description: "Coding standards defined"
+        status: ""
+      - id: "EC-03-005"
+        description: "Human approved and transition to Phase 04"
+        status: ""
+
+  - phase: "04-BACKEND_LLD"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks:      # [x] complete | [] incomplete
+      - file: "memory/backend-design.yaml"
+        fields: []
+    exit_criteria:
+      - id: "EC-04-001"
+        description: "Backend processes defined"
+        status: ""
+      - id: "EC-04-002"
+        description: "Features and business logic documented"
+        status: ""
+      - id: "EC-04-003"
+        description: "API contracts specified"
+        status: ""
+      - id: "EC-04-004"
+        description: "Data models defined"
+        status: ""
+      - id: "EC-04-005"
+        description: "Human approved and transition to Phase 05"
+        status: ""
+
+  - phase: "05-UI_UX_LLD"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks:      # [x] complete | [] incomplete
+      - file: "memory/ui-ux-design.yaml"
+        fields: []
+    exit_criteria:
+      - id: "EC-05-001"
+        description: "User flows documented"
+        status: ""
+      - id: "EC-05-002"
+        description: "Screen layouts defined"
+        status: ""
+      - id: "EC-05-003"
+        description: "Interaction patterns specified"
+        status: ""
+      - id: "EC-05-004"
+        description: "Human approved and transition to Phase 06"
+        status: ""
+
+  - phase: "06-IMPLEMENTATION_PLANNING"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks:      # [x] complete | [] incomplete
+      - file: "memory/progress.yaml"
+        fields: []
+    exit_criteria:
+      - id: "EC-06-001"
+        description: "Tasks broken down"
+        status: ""
+      - id: "EC-06-002"
+        description: "Dependencies mapped"
+        status: ""
+      - id: "EC-06-003"
+        description: "Human approved plan and transition to Phase 07"
+        status: ""
+
+  - phase: "07-IMPLEMENTATION"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks: []       # [x] complete | [] incomplete
+    exit_criteria:
+      - id: "EC-07-001"
+        description: "Core features implemented"
+        status: ""
+      - id: "EC-07-002"
+        description: "Tests written"
+        status: ""
+      - id: "EC-07-003"
+        description: "Documentation updated"
+        status: ""
+      - id: "EC-07-004"
+        description: "Human approved and transition to Phase 08"
+        status: ""
+
+  - phase: "08-VERIFICATION_UAT"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks: []       # [x] complete | [] incomplete
+    exit_criteria:
+      - id: "EC-08-001"
+        description: "Tests passing"
+        status: ""
+      - id: "EC-08-002"
+        description: "UAT completed"
+        status: ""
+      - id: "EC-08-003"
+        description: "Bugs resolved"
+        status: ""
+      - id: "EC-08-004"
+        description: "Human approved and transition to Phase 09"
+        status: ""
+
+  - phase: "09-RELEASE"
+    status: "LOCKED"
+    human_approved: false
+    approved_at: ""
+    completion_checks: []       # [x] complete | [] incomplete
+    exit_criteria:
+      - id: "EC-09-001"
+        description: "Deployed to production"
+        status: ""
+      - id: "EC-09-002"
+        description: "Monitoring configured"
+        status: ""
+      - id: "EC-09-003"
+        description: "Handoff complete"
+        status: ""
+      - id: "EC-09-004"
+        description: "Human signed off on release"
+        status: ""
+
+# ─── DECISIONS LOG ──────────────────────────────────────────────────────────
+decisions_log:
+  - id: "DEC-001"
+    date: ""
+    phase: ""
+    decision: ""
+    rationale: ""
+
+# ─── BLOCKED ITEMS ──────────────────────────────────────────────────────────
+blocked:
+  - id: ""
+    description: ""
+    blocked_by: ""
+    phase: ""
+    notes: ""
+
+notes: ""

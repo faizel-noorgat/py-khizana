@@ -1,0 +1,58 @@
+file_id: "system-patterns"
+schema_version: "1.0"
+last_updated: ""
+updated_by: ""  # claude | human
+
+architectural_decisions:
+  - id: "ADR-001"
+    title: ""
+    status: ""  # PROPOSED | ACCEPTED | DEPRECATED | SUPERSEDED
+    superseded_by: ""
+    context: ""
+    decision: ""
+    consequences:
+      positive: []
+      negative: []
+      neutral: []
+
+design_patterns:
+  - id: "DP-001"
+    name: ""
+    category: ""  # CREATIONAL | STRUCTURAL | BEHAVIORAL
+    problem: ""
+    solution: ""
+    implementation_reference: ""
+    use_when: []
+    avoid_when: []
+
+component_relationships:
+  - from: ""
+    to: ""
+    relationship: ""  # DEPENDS_ON | CALLS | PUBLISHES | SUBSCRIBES | INHERITS
+
+data_flows:
+  - id: "DF-001"
+    description: ""
+    source: ""
+    transform: ""
+    sink: ""
+
+security_patterns:
+  - id: "SP-001"
+    name: ""
+    description: ""
+    applies_to: []
+
+performance_patterns:
+  - id: "PP-001"
+    name: ""
+    description: ""
+    applies_to: []
+
+testing_patterns:
+  - id: "TP-001"
+    name: ""
+    description: ""
+    applies_to: []
+
+notes: ""

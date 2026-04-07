@@ -1,0 +1,24 @@
+file_id: "notes-next-session"
+schema_version: "1.0"
+written: ""
+status_at_close: ""  # ACTIVE | BLOCKED | PHASE_COMPLETE
+updated_by: "claude"
+
+priority_actions:
+  - ""
+
+context:
+  key_decisions: []
+  approved_artifacts: []
+  open_questions: []
+
+open_items:
+  - id: ""
+    description: ""
+    raised_session: ""
+    status: ""  # OPEN | IN_PROGRESS | BLOCKED
+    owner: ""   # claude | human
+
+do_not_do: []
+
+human_last_instruction: ""

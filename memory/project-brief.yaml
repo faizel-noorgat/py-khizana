@@ -1,0 +1,64 @@
+# Project Brief Template
+# ======================
+# This file captures project-level context: goals, scope, constraints, success criteria.
+# Sections are filled incrementally during Phase 01 (PRD Discovery).
+#
+# Structure Reference:
+# --------------------
+# raw_vision: Free-form user description (captured verbatim in Section 1)
+# overview: Brief problem/solution summary
+# current_landscape: What exists today - incumbents, workarounds, or nothing
+# goals: What we want to achieve (id: G-XXX)
+# scope.in_scope: What this effort covers
+# scope.out_of_scope: What we're explicitly NOT building
+# success_criteria: Launch and outcome criteria (id: SC-XXX, type: LAUNCH | OUTCOME)
+# constraints: Time, budget, technical limits (id: C-XXX)
+# dependencies: External systems/teams we depend on (id: DEP-XXX)
+# timeline: Start, target, milestones
+# notes: Free-form capture space
+#
+# ID Schema: G-XXX (goals), SC-XXX (success), C-XXX (constraints), DEP-XXX (deps), M-XXX (milestones)
+# See phases/01-prd-discovery.md Section 735-755 for full ID schema
+
+file_id: "project-brief"
+schema_version: "3.0"
+last_updated: ""
+updated_by: ""  # claude | human
+
+raw_vision: ""  # Captured verbatim from user's free-form description
+
+overview: ""
+current_landscape: ""  # What exists today - incumbents, workarounds, or nothing
+
+goals:
+  - id: "G-001"
+    description: ""
+
+scope:
+  in_scope:
+    - ""
+  out_of_scope:
+    - ""
+
+success_criteria:
+  - id: "SC-001"
+    type: ""  # LAUNCH | OUTCOME
+    description: ""
+
+constraints:
+  - id: "C-001"
+    description: ""
+
+dependencies:
+  - id: "DEP-001"
+    description: ""
+
+timeline:
+  start_date: ""
+  target_completion: ""
+  milestones:
+    - id: "M-001"
+      description: ""
+      target_date: ""
+
+notes: ""

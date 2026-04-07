@@ -1,0 +1,65 @@
+file_id: "tech-context"
+schema_version: "1.0"
+last_updated: ""
+updated_by: ""  # claude | human
+populated_after_phase: "03-TECH_STACK_SELECTION"
+
+stack:
+  core:
+    language: ""
+    framework: ""
+    database: ""
+    infrastructure: ""
+  tools:
+    build: ""
+    testing: ""
+    linting: ""
+    ci_cd: ""
+
+architecture:
+  pattern: ""  # MVC | MICROSERVICES | SERVERLESS | MONOLITH | EVENT_DRIVEN
+  components:
+    - id: "CMP-001"
+      name: ""
+      description: ""
+
+dev_environment:
+  node_version: ""
+  package_manager: ""  # npm | yarn | pnpm | bun
+  required_tools: []
+
+dependencies:
+  runtime:
+    - package: ""
+      version: ""
+  development:
+    - package: ""
+      version: ""
+
+environment_variables:
+  - id: "ENV-001"
+    variable: ""
+    purpose: ""
+    required: true  # true | false
+
+api_contracts:
+  - id: "API-001"
+    endpoint: ""
+    method: ""  # GET | POST | PUT | PATCH | DELETE
+    description: ""
+    request_schema: ""
+    response_schema: ""
+
+data_models:
+  - id: "DM-001"
+    name: ""
+    description: ""
+    fields: []
+
+external_services:
+  - id: "SVC-001"
+    name: ""
+    purpose: ""
+    integration_status: ""  # PLANNED | IN_PROGRESS | COMPLETE
+
+notes: ""
