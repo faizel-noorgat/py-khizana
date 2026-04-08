@@ -14,33 +14,143 @@ You have access to the **AskUserQuestion** and **TaskCreate / TaskUpdate** tools
 - Both `project-brief.yaml` and `product-context.yaml` have been drafted for **{{PROJECT_NAME}}**
 - The agent believes the phase may be ready to close
 
+---
+
+## Pre-Review Verification
+
+Before starting any review work, verify that Discovery's Section 12 (User Confirmation & Handoff Readiness) was completed. This prevents reviewing documents the user hasn't approved yet.
+
+**Check:**
+Read `memory/progress.yaml` and verify `phase_01.complete` is set to `true`. If not, Discovery was interrupted or the user never confirmed.
+
+**If Section 12 was NOT completed:**
+
+Use AskUserQuestion to ask:
+> "The discovery phase wasn't formally closed with user confirmation. Would you like me to complete discovery first, or proceed with review anyway?"
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Discovery status",
+      "question": "Discovery's final confirmation step wasn't completed. What should I do?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Complete discovery first", "description": "Run Section 12 now — summarize and get user approval before reviewing"},
+        {"label": "Proceed with review anyway", "description": "The documents are ready enough, I want to review them now"},
+        {"label": "Check what's missing", "description": "Show me what discovery tasks are incomplete"}
+      ]
+    }
+  ]
+})
+```
+
+If the user selects "Complete discovery first" or "Check what's missing", route to `phases/01-prd-discovery.md` via the `on_incomplete` path in `progress.yaml`.
+
+**If Section 12 was completed OR user chooses to proceed:**
+
+Continue to Anti-Pattern Check below.
+
+---
+
+## Anti-Pattern Check (First Gate)
+
+**Start:** `TaskUpdate(subject: "Run Anti-Pattern Check", status: "in_progress")`
+
+Before any other review, run the anti-pattern checklist to catch vague or untestable language. A PRD that passes all structural checks but contains "fast response" or "easy to use" is not actually complete.
+
+Read both `project-brief.yaml` and `product-context.yaml` and scan for vague terms. Flag any instance of:
+
+| ❌ Vague Term | ✓ What to Use Instead |
+|---------------|----------------------|
+| "fast" | "response time under X ms" |
+| "easy to use" | "user completes task in under X clicks" |
+| "user-friendly" | "user satisfaction score above X" |
+| "intuitive" | "new user completes core flow without help" |
+| "scalable" | "handles X concurrent users" |
+| "secure" | "all data encrypted at rest with [standard]" |
+| "reliable" | "X% uptime" |
+| "robust" | "handles X error scenarios gracefully" |
+| "flexible" | "supports X configuration options" |
+| "modern" | specific tech stack or UI pattern |
+
+**Validation questions for each flagged term:**
+1. Can a developer implement this without asking for clarification?
+2. Can a tester write a pass/fail test for this?
+3. If you replaced the vague term with a specific number, would it change the implementation?
+
+If any term fails validation, do not proceed to the main review. Use AskUserQuestion to ask the user to rephrase:
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Vague term",
+      "question": "I found '[term]' in [document/section]. This is too vague to implement or test. What should replace it?",
+      "multiSelect": false,
+      "options": [
+        {"label": "I'll provide a specific target", "description": "Give me a moment to specify the actual number or criteria"},
+        {"label": "Keep it vague intentionally", "description": "This requirement is genuinely flexible at this stage"},
+        {"label": "Remove this requirement", "description": "It's not actually important enough to track"}
+      ]
+    }
+  ]
+})
+```
+
+If the user chooses to keep vague intentionally, mark it as a known limitation. If they provide a specific target, update the document via `/doc-update` skill before proceeding.
+
+**Complete:** `TaskUpdate(subject: "Run Anti-Pattern Check", status: "completed")`
+
+---
+
 ## Review Setup
 
 At review start, create the review task list. These tasks are **informational checkboxes** — no blocking dependencies between them. They exist so you can track what has been reviewed and confirm nothing is outstanding before recommending approval.
 
+**Load rules files first:**
+Before creating tasks, read `.claude/rules/project-brief.md` and `.claude/rules/product-context.md`. These define what "complete" means for each field in the documents you're reviewing. Use these rules as your validation bar, not just the checklist below.
+
 ```
+TaskCreate(subject: "Run Anti-Pattern Check", description: "Scan for vague terms (fast, easy, user-friendly) before structural review")
 TaskCreate(subject: "Review Problem & Context", description: "Problem statement, landscape, goals, greenfield vs replacement")
 TaskCreate(subject: "Review Users & Stakeholders", description: "Personas, decision-maker, user needs, segment differences")
-TaskCreate(subject: "Review Scope", description: "P0 features, out-of-scope, contradictions, goal alignment")
+TaskCreate(subject: "Review Requirements & Scope", description: "P0 features, out-of-scope, contradictions, goal alignment")
 TaskCreate(subject: "Review Success Criteria", description: "Launch criteria, outcome criteria, goal traceability")
 TaskCreate(subject: "Review Constraints & Dependencies", description: "Constraints documented, dependencies identified, no contradictions")
 TaskCreate(subject: "Review Risks & Unknowns", description: "Risks identified, open questions triaged, assumptions explicit")
+TaskCreate(subject: "Review Key Terms & Glossary", description: "Domain-specific language captured, terms defined, no ambiguous jargon")
+TaskCreate(subject: "Check Traceability (ID consistency)", description: "Requirement IDs consistent across both documents, no orphan or duplicate IDs")
 TaskCreate(subject: "Check Internal Consistency", description: "Goals, features, and criteria tell a coherent story end to end")
 ```
 
-Mark each task `in_progress` as you begin reviewing that area, and `completed` once you've assigned a verdict and resolved any gaps. Run `TaskList` before producing the final review table to confirm all 7 tasks are `completed`.
+Mark each task `in_progress` as you begin reviewing that area, and `completed` once you've assigned a verdict and resolved any gaps. Run `TaskList` before producing the final review table to confirm all 10 tasks are `completed`.
 
 ---
 
 ## Review Process
 
-Read `project-brief.yaml` and `product-context.yaml` for **{{PROJECT_NAME}}** end to end before starting. For every item below, assign one of:
+Read targeted sections of `memory/project-brief.yaml` and `memory/product-context.yaml` as needed for each review area. Do NOT read both files end-to-end at once — this wastes tokens and makes it harder to spot specific gaps.
 
+**For each review section:**
+1. Read only the relevant fields for that area
+2. Validate against the rules file (`.claude/rules/project-brief.md` or `product-context.md`)
+3. Assign verdict: **Pass**, **Gap**, or **Weak**
+4. If updates are needed, use `/doc-update` skill to fix them
+
+**Verdict definitions:**
 - **Pass** — Present, specific, and sufficient to build on
 - **Gap** — Missing or incomplete
 - **Weak** — Present but vague, untestable, or likely to cause problems downstream
 
 Do not skip items. Do not infer what the author probably meant. Evaluate what is actually written.
+
+**When fixing gaps:** Use `/doc-update` skill for consistency with Discovery:
+
+```
+Skill(skill: "doc-update", args: "memory/project-brief.yaml [field_name]")
+Skill(skill: "doc-update", args: "memory/product-context.yaml [field_name]")
+```
 
 ---
 
@@ -110,9 +220,9 @@ AskUserQuestion({
 
 ---
 
-### 3. Scope
+### 3. Requirements & Scope
 
-**Start:** `TaskUpdate(subject: "Review Scope", status: "in_progress")`
+**Start:** `TaskUpdate(subject: "Review Requirements & Scope", status: "in_progress")`
 
 - [ ] P0 features are defined and each one is clearly distinct from the others
 - [ ] An out-of-scope section exists and contains meaningful exclusions, not filler
@@ -139,7 +249,7 @@ AskUserQuestion({
 })
 ```
 
-**Complete:** `TaskUpdate(subject: "Review Scope", status: "completed")`
+**Complete:** `TaskUpdate(subject: "Review Requirements & Scope", status: "completed")`
 
 ---
 
@@ -239,7 +349,77 @@ AskUserQuestion({
 
 ---
 
-### 7. Internal Consistency
+### 7. Key Terms & Glossary
+
+**Start:** `TaskUpdate(subject: "Review Key Terms & Glossary", status: "in_progress")`
+
+- [ ] A glossary section exists in `product-context.yaml`
+- [ ] Every domain-specific term introduced in the documents has a definition
+- [ ] Definitions are specific enough that two people would interpret them the same way
+- [ ] No term is defined ambiguously (e.g., "X means Y to some users, Z to others")
+- [ ] Abbreviations and acronyms are spelled out at first use or defined in glossary
+
+If any item is **Gap** or **Weak**, use AskUserQuestion to close it before moving on:
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Glossary gap",
+      "question": "The key terms and glossary section needs attention. What's missing?",
+      "multiSelect": true,
+      "options": [
+        {"label": "No glossary section", "description": "product-context.yaml has no glossary field"},
+        {"label": "Missing term definitions", "description": "Domain terms appear in documents but aren't defined"},
+        {"label": "Ambiguous definitions", "description": "A term has multiple possible interpretations"},
+        {"label": "Undefined abbreviations", "description": "Acronyms appear without being spelled out"}
+      ]
+    }
+  ]
+})
+```
+
+**Complete:** `TaskUpdate(subject: "Review Key Terms & Glossary", status: "completed")`
+
+---
+
+### 8. Traceability (ID Consistency)
+
+**Start:** `TaskUpdate(subject: "Check Traceability (ID consistency)", status: "in_progress")`
+
+Check that Requirement IDs are used consistently across both documents. IDs were defined in Discovery for traceability across phases — they must match or later phases will break.
+
+- [ ] Features in `project-brief.yaml` have IDs matching entries in `product-context.yaml`
+- [ ] No duplicate IDs exist (e.g., two different features both labeled FTR-003)
+- [ ] No orphan IDs exist (e.g., FTR-005 referenced in one document but undefined in the other)
+- [ ] ID prefixes are used correctly (FTR- for features, NFR- for non-functional, US- for user stories, etc.)
+- [ ] Cross-references use IDs correctly (e.g., a user story references FTR-001, not just "the feature")
+
+If any item is **Gap** or **Weak**, use AskUserQuestion to close it before moving on:
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "ID issue",
+      "question": "There's a traceability problem with requirement IDs. Which applies?",
+      "multiSelect": true,
+      "options": [
+        {"label": "ID mismatch between documents", "description": "Same ID has different content in project-brief vs product-context"},
+        {"label": "Duplicate IDs", "description": "Two different items share the same ID"},
+        {"label": "Orphan ID", "description": "An ID appears in one document but not the other"},
+        {"label": "Wrong prefix", "description": "A feature uses NFR- prefix, or a non-functional requirement uses FTR-"}
+      ]
+    }
+  ]
+})
+```
+
+**Complete:** `TaskUpdate(subject: "Check Traceability (ID consistency)", status: "completed")`
+
+---
+
+### 9. Internal Consistency
 
 **Start:** `TaskUpdate(subject: "Check Internal Consistency", status: "in_progress")`
 
@@ -276,20 +456,23 @@ AskUserQuestion({
 
 ## Producing the Review
 
-Run `TaskList` to confirm all 7 review tasks are `completed` before producing the final table.
+Run `TaskList` to confirm all 10 review tasks are `completed` before producing the final table.
 
 Present your findings as a table:
 
 ```
 | Area                     | Verdict | Notes                          |
 |--------------------------|---------|--------------------------------|
+| Anti-Pattern Check       | Pass    | No vague terms found           |
 | Problem & Context        | Pass    |                                |
 | Users & Stakeholders     | Weak    | [specific issue]               |
-| Scope                    | Gap     | [what's missing]               |
+| Requirements & Scope     | Gap     | [what's missing]               |
 | Success Criteria         | Pass    |                                |
 | Constraints & Deps       | Pass    |                                |
 | Risks & Unknowns         | Weak    | [specific issue]               |
-| Internal Consistency     | Gap     | [what contradicts what]        |
+| Key Terms & Glossary     | Pass    |                                |
+| Traceability (IDs)       | Gap     | [which IDs have issues]        |
+| Internal Consistency     | Pass    |                                |
 ```
 
 For every **Gap** or **Weak** verdict, list the specific failing checklist items and either:
