@@ -1,29 +1,217 @@
 file_id: "product-context"
 schema_version: "2.0"
-last_updated: ""
-updated_by: ""  # claude | human
+last_updated: "2026-04-08"
+updated_by: "claude"
 
 stakeholders:
-  - role: ""
-    person_or_team: ""
+  - role: "Decision-maker"
+    person_or_team: "Solo developer with ADHD"
+  - role: "End users"
+    person_or_team: "Personal, family, and small business teams with scattered files"
+  - role: "Administrator"
+    person_or_team: "User who sets up and configures the local webserver"
 
-target_users:
-  - id: "USR-001"
-    persona: ""
-    description: ""
-    goals: []
-    pain_points: []
-    technical_level: ""  # LOW | MEDIUM | HIGH
+user_personas:
+  - id: "P-001"
+    name: "ADHD Digital Hoarder"
+    role: "Primary user with accumulated files and attention challenges"
+    description: "Has 25+ years of accumulated files across multiple computers and drives. Knows files exist somewhere but can't find them when needed. Has tried organizing manually but gave up after attempts became too complex. Wants AI to offload the cognitive burden of sorting."
+    goals:
+      - "Find any document within seconds using natural language"
+      - "Have files automatically organized without manual effort"
+      - "Stop duplicating files across different locations"
+    pain_points:
+      - "Wastes 15+ minutes searching for documents before starting work"
+      - "Too many folder levels make navigation impossible"
+      - "Forgets conventions (resources vs areas, where does something go?)"
+      - "Duplicates same file across devices with no way to identify"
+    technical_level: "MEDIUM"
+    is_primary: true
+
+  - id: "P-002"
+    name: "Family Archivist"
+    role: "Home user managing household documents"
+    description: "Managing household documents, photos, school records, medical files, insurance documents for multiple family members. Files scattered across family computers, phones, and cloud storage."
+    goals:
+      - "Keep family documents organized by person and category"
+      - "Find school forms and medical records quickly"
+      - "Preserve family photos with proper metadata"
+    pain_points:
+      - "Can't find kids' school forms when needed"
+      - "Photos scattered across phones with no dates or labels"
+      - "Medical records mixed with random downloads"
+    technical_level: "LOW"
+    is_primary: false
+
+  - id: "P-003"
+    name: "Small Business Operator"
+    role: "Solo entrepreneur with mixed business/personal files"
+    description: "Runs a small business with invoices, contracts, bank statements, and client documents scattered across folders. Needs quick access during tax season and for contract renewals. Business and personal files often mixed together."
+    goals:
+      - "Quickly find financial documents for tax season"
+      - "Separate business from personal files automatically"
+      - "Track contracts and their expiry dates"
+    pain_points:
+      - "Tax season nightmare of finding scattered documents"
+      - "Missed contract renewals due to poor tracking"
+      - "Can't tell which version of invoice is latest"
+    technical_level: "LOW"
+    is_primary: false
+
+  - id: "P-004"
+    name: "Research Collector"
+    role: "Academic or self-directed learner"
+    description: "Collects academic papers, research notes, and citations across multiple projects. Downloads papers for later reading but forgets where they went. Often downloads same paper twice under different filenames."
+    goals:
+      - "Organize papers by research topic, not just filename"
+      - "Find papers by content similarity, not exact title"
+      - "Track citations and references across papers"
+    pain_points:
+      - "Can't find papers read months ago"
+      - "Duplicate papers downloaded under different names"
+      - "No way to see which papers relate to each other"
+    technical_level: "HIGH"
+    is_primary: false
+
+  - id: "P-005"
+    name: "Multi-Device Professional"
+    role: "Knowledge worker across multiple machines"
+    description: "Works across laptop, desktop, phone, and cloud storage. Never knows which device has which file. Syncing creates duplicates rather than solving the problem."
+    goals:
+      - "Unified view of files across all devices"
+      - "Know which version is the latest"
+      - "Access files from any device through one interface"
+    pain_points:
+      - "Opens wrong version of document from wrong device"
+      - "Sync conflicts create duplicates not resolutions"
+      - "Can't remember if file is on laptop or NAS"
+    technical_level: "MEDIUM"
+    is_primary: false
+
+  - id: "P-006"
+    name: "Ebook Enthusiast"
+    role: "Book collector with disorganized library"
+    description: "Has hundreds of ebooks with poor metadata. File names don't match titles. Same book in multiple formats. Wants proper library organization with ISBN validation."
+    goals:
+      - "Validate ISBNs and fetch proper book metadata"
+      - "Organize by author, series, genre"
+      - "Find books by description, not filename"
+    pain_points:
+      - "Filename doesn't match book title"
+      - "Same book saved as PDF, epub, mobi"
+      - "Can't find sequel because first book has wrong metadata"
+    technical_level: "MEDIUM"
+    is_primary: false
+
+  - id: "P-007"
+    name: "Developer with Messy Vaults"
+    role: "Technical user with scattered knowledge base"
+    description: "Obsidian/Notion vaults became disorganized over time. Code snippets, markdown notes, project documentation scattered. Wants semantic search across technical content."
+    goals:
+      - "Find code snippets by functionality, not filename"
+      - "Cross-reference markdown notes with related documents"
+      - "Organize developer resources by technology/topic"
+    pain_points:
+      - "Obsidian vault is a mess, can't find notes"
+      - "Code snippets saved randomly with no context"
+      - "Project documentation mixed with random downloads"
+    technical_level: "HIGH"
+    is_primary: false
+
+  - id: "P-008"
+    name: "Media Librarian"
+    role: "User with large photo/video/audio collections"
+    description: "Photos, videos, and audio files across phones, cameras, SD cards, and cloud. No consistent naming or dating. Wants media organized by date, event, or content."
+    goals:
+      - "Organize photos by date and event automatically"
+      - "Find images by content description"
+      - "Eliminate duplicate photos across sources"
+    pain_points:
+      - "Photos from trip scattered across phone and camera"
+      - "No dates on old photos, can't organize chronologically"
+      - "Duplicates of same image across cloud and local"
+    technical_level: "LOW"
+    is_primary: false
+
+  - id: "P-009"
+    name: "Privacy-Conscious User"
+    role: "User who values local-only processing"
+    description: "Distrusts cloud services and external AI. Wants all processing local. Has sensitive documents (financial, medical, legal) that must never leave local network."
+    goals:
+      - "All AI processing stays on local hardware"
+      - "No data sent to external servers"
+      - "Full control over what's indexed"
+    pain_points:
+      - "Existing AI tools require cloud upload"
+      - "Concerned about sensitive document exposure"
+      - "Can't use commercial AI search tools"
+    technical_level: "HIGH"
+    is_primary: false
+
+  - id: "P-010"
+    name: "Solo Entrepreneur"
+    role: "Business owner with mixed file types"
+    description: "Business and personal files mixed together. Client deliverables, proposals, invoices scattered. Needs quick retrieval during client calls and meetings."
+    goals:
+      - "Separate business from personal automatically"
+      - "Find client files during calls in seconds"
+      - "Track project deliverables and versions"
+    pain_points:
+      - "Can't find proposal when client calls"
+      - "Sent wrong version of deliverable to client"
+      - "Business files mixed with personal downloads"
+    technical_level: "MEDIUM"
+    is_primary: false
 
 user_needs:
   - id: "UN-001"
-    description: ""
+    description: "Find any document quickly using semantic/natural language search"
+  - id: "UN-002"
+    description: "Automatically organize files based on content and user context"
+  - id: "UN-003"
+    description: "Eliminate duplicate files across all storage locations"
+  - id: "UN-004"
+    description: "Track file changes with version history"
+  - id: "UN-005"
+    description: "Have system understand user preferences through AI interview"
 
 features:
   - id: "FTR-001"
-    description: ""
-    priority: ""  # P0 | P1 | P2
-    status: ""    # PENDING | IN_PROGRESS | COMPLETE | REMOVED
+    description: "Process and index documents (PDF, Office, ebooks, developer files, media)"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-002"
+    description: "ISBN validation and metadata enrichment for ebooks"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-003"
+    description: "Semantic search using RAG and BM25"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-004"
+    description: "AI interview for user profiling (likes, work, interests, hobbies)"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-005"
+    description: "Automatic file reorganization based on user profile and document content"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-006"
+    description: "Git-like version history (branches, commits, diffs)"
+    priority: "P1"
+    status: "PENDING"
+  - id: "FTR-007"
+    description: "Duplicate detection and elimination"
+    priority: "P0"
+    status: "PENDING"
+  - id: "FTR-008"
+    description: "Exclusion list for binaries and project folders"
+    priority: "P1"
+    status: "PENDING"
+  - id: "FTR-009"
+    description: "Notification when file doesn't fit current structure"
+    priority: "P2"
+    status: "PENDING"
 
 user_flows:
   - id: "FLW-001"
@@ -36,35 +224,63 @@ requirements:
   functional:
     - id: "FR-001"
       description: ""
-      status: ""  # PENDING | IN_PROGRESS | COMPLETE
+      status: ""
   non_functional:
     - id: "NFR-001"
-      category: ""  # PERFORMANCE | SECURITY | ACCESSIBILITY | COMPLIANCE
-      description: ""
-      measurable_target: ""
-      verification_status: ""  # PENDING | PASS | FAIL
+      category: "SECURITY"
+      description: "All processing and storage is local"
+      measurable_target: "No data sent to external servers without explicit consent"
+      verification_status: "PENDING"
 
 risks:
   - id: "R-001"
-    description: ""
-    likelihood: ""  # LOW | MEDIUM | HIGH
-    impact: ""      # LOW | MEDIUM | HIGH
-    mitigation: ""
+    description: "Developer procrastination or loss of momentum on solo project"
+    likelihood: "MEDIUM"
+    impact: "HIGH"
+    mitigation: "Break work into small deliverables, maintain visible progress tracking, regular commit schedule"
+  - id: "R-002"
+    description: "LLM API costs may scale unexpectedly with large document collections"
+    likelihood: "MEDIUM"
+    impact: "MEDIUM"
+    mitigation: "Implement caching, batch processing, and cost monitoring from start"
 
 assumptions:
   - id: "A-001"
-    description: ""
+    description: "Users have sufficient local storage for document index and embeddings"
+    validated: false
+  - id: "A-002"
+    description: "LLM APIs remain available and affordable for the project lifetime"
+    validated: false
+  - id: "A-003"
+    description: "Users are comfortable with initial AI interview for profiling"
+    validated: false
+  - id: "A-004"
+    description: "ISBN databases provide reliable metadata for book identification"
     validated: false
 
 open_questions:
   - id: "OQ-001"
-    description: ""
-    status: ""  # OPEN | ANSWERED | DEFERRED
+    description: "Should we support inclusion list in addition to exclusion list for file scanning?"
+    status: "OPEN"
     blocking: false
     answer: ""
 
 glossary:
-  - term: ""
-    definition: ""
-
-notes: ""
+  - term: "RAG"
+    definition: "Retrieval-Augmented Generation - combining search with AI to find and summarize documents"
+  - term: "Agentic Chunking"
+    definition: "Advanced RAG strategy using LLM as agent to decide where text chunks start/end based on meaning, not rigid rules"
+  - term: "Agentic RAG"
+    definition: "RAG with autonomous agents that can reason about retrieval and make decisions"
+  - term: "BM25"
+    definition: "Ranking algorithm for text search relevance based on term frequency"
+  - term: "Embeddings"
+    definition: "Vector representations of text for semantic similarity matching"
+  - term: "Voyager"
+    definition: "Embedding model family for different content types"
+  - term: "ISBN"
+    definition: "International Standard Book Number - unique identifier for books"
+  - term: "Air-gap"
+    definition: "Isolated system with no network connectivity to external services"
+  - term: "User Profile"
+    definition: "AI-learned preferences about user's work, interests, hobbies for better categorization"

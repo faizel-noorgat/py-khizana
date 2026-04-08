@@ -19,7 +19,7 @@ Read the memory bank files in the order defined above. Do not begin any work unt
 
 ## Active Phase
 
-After reading the memory bank, check `active_phase` in `current-state.md` and load the corresponding phase file from `phases/`.
+After reading the memory bank, check `active_phase` in `progress.yaml` and load the corresponding phase file from `phases/`.
 
 | active_phase | Load |
 |---|---|

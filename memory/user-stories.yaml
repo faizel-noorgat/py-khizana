@@ -1,0 +1,471 @@
+file_id: "user-stories"
+schema_version: "1.0"
+last_updated: "2026-04-08"
+updated_by: "claude"
+
+user_stories:
+  # P-001: ADHD Digital Hoarder (Primary)
+  - id: "US-001"
+    persona_id: "P-001"
+    title: "Natural Language Search"
+    story: "As ADHD Digital Hoarder, I want to describe what I remember about a file and find it instantly, So that I don't waste 15 minutes hunting through folders before starting work."
+    acceptance_criteria:
+      - "Given I search for 'tax return PDF from last year', when results appear, then my 2025 tax return is shown first"
+      - "Given I search for 'that contract I signed with the red logo company', when results appear, then files with matching description are ranked by relevance"
+      - "Given I remember only the content not the filename, when I describe it, then the correct file appears within 3 seconds"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-002"
+    persona_id: "P-001"
+    title: "Auto-Organize Files"
+    story: "As ADHD Digital Hoarder, I want files sorted into folders automatically based on what they contain, So that I don't have to decide where everything goes."
+    acceptance_criteria:
+      - "Given a new PDF is added to my monitored folders, when the system processes it, then it moves to the appropriate category folder without my input"
+      - "Given I have files scattered across multiple drives, when I run organization, then files are grouped logically by type and topic"
+      - "Given the system suggests a folder structure, when I review it, then I can approve or adjust with one click per category"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-003"
+    persona_id: "P-001"
+    title: "Duplicate Alert"
+    story: "As ADHD Digital Hoarder, I want the system to warn me when I'm about to save a duplicate file, So that I stop accumulating copies of the same thing everywhere."
+    acceptance_criteria:
+      - "Given I download a file that already exists elsewhere, when the download completes, then a notification shows the existing location and asks if I want to keep both"
+      - "Given I have multiple copies of the same document, when I view duplicates, then I see all locations and can choose which to keep"
+      - "Given two files have different names but identical content, when scanning, then they are flagged as duplicates"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-004"
+    persona_id: "P-001"
+    title: "Search-First UI"
+    story: "As ADHD Digital Hoarder, I want a flat search-first interface without nested folders, So that I don't get lost in seven levels of directories trying to find one thing."
+    acceptance_criteria:
+      - "Given I open the application, when the interface loads, then a search bar is the primary entry point"
+      - "Given I want to browse files, when I choose to browse, then files are shown by category or tag, not folder tree"
+      - "Given I need to access a file quickly, when I think of it, then I can find it within 2 interactions without navigating folder levels"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-005"
+    persona_id: "P-001"
+    title: "AI Interview Profiling"
+    story: "As ADHD Digital Hoarder, I want the system to learn my filing preferences through conversation, So that I don't have to memorize arbitrary folder conventions."
+    acceptance_criteria:
+      - "Given I start the system for the first time, when setup begins, then the AI asks me questions about how I think about my files"
+      - "Given the AI learns I call tax documents 'financial stuff', when I search, then my natural language matches that mental model"
+      - "Given my preferences evolve over time, when I give feedback, then the system adapts without requiring formal rule changes"
+    priority: "P0"
+    status: "PENDING"
+
+  # P-002: Family Archivist
+  - id: "US-006"
+    persona_id: "P-002"
+    title: "School Forms Finder"
+    story: "As Family Archivist, I want to quickly find my kids' school forms by typing their name and 'school forms', So that I don't panic when the deadline is tomorrow and I can't remember which folder I saved it in."
+    acceptance_criteria:
+      - "Given I have many scattered files, When I type 'Emma school forms', Then I see all school-related documents for Emma in one place"
+      - "Given I find a school form, When I open it, Then I can see which child it belongs to and what year it's from"
+      - "Given I'm looking for a form, When I search, Then results show within 3 seconds even with thousands of files"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-007"
+    persona_id: "P-002"
+    title: "Smart Photo Organizer"
+    story: "As Family Archivist, I want all my family photos to automatically organize themselves by date and who's in them, So that I can find baby pictures for my son's graduation slideshow without scrolling through 10,000 photos manually."
+    acceptance_criteria:
+      - "Given I upload photos from my phone, When the system processes them, Then photos are grouped by year and month automatically"
+      - "Given I want photos of my daughter, When I search her name, Then I see all photos she appears in"
+      - "Given I have duplicate photos, When the system scans, Then I'm asked which to keep instead of seeing copies"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-008"
+    persona_id: "P-002"
+    title: "Medical Records Keeper"
+    story: "As Family Archivist, I want to store medical records for each family member separately, So that I can pull up my son's vaccination history at the doctor's office without digging through a pile of mixed paperwork."
+    acceptance_criteria:
+      - "Given I upload a medical document, When I save it, Then I can tag it to a specific family member"
+      - "Given I'm at a doctor appointment, When I search 'vaccinations', Then I see vaccination records for whoever I need"
+      - "Given I have sensitive medical files, When I organize them, Then they stay private and separate from random downloads"
+    priority: "P1"
+    status: "PENDING"
+
+  # P-003: Small Business Operator
+  - id: "US-009"
+    persona_id: "P-003"
+    title: "Tax Document Collector"
+    story: "As Small Business Operator, I want to click one button and see all my tax-related documents from the past year grouped by category, So that I can hand my accountant everything they need without spending hours searching."
+    acceptance_criteria:
+      - "Given I have scattered tax documents across multiple folders, When I click 'Collect Tax Documents', Then the system shows all documents from the current tax year grouped by type"
+      - "Given the system has collected my tax documents, When I review the list, Then I can see which documents are missing"
+      - "Given I want to share with my accountant, When I click 'Export Tax Package', Then all documents are bundled into a single organized folder"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-010"
+    persona_id: "P-003"
+    title: "Contract Expiry Alerts"
+    story: "As Small Business Operator, I want to receive automatic alerts 30 days before any contract expires, So that I never miss a renewal deadline or lose a client unexpectedly."
+    acceptance_criteria:
+      - "Given I have uploaded a contract with an end date, When that date is 30 days away, Then I receive a notification reminding me to renew"
+      - "Given I have multiple contracts, When I view the dashboard, Then I see a list of upcoming expirations sorted by date"
+      - "Given a contract is expiring, When I click on the alert, Then I see the original contract and any related client correspondence"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-011"
+    persona_id: "P-003"
+    title: "Version Detector"
+    story: "As Small Business Operator, I want the system to automatically detect and highlight the most recent version of any document, So that I stop sending outdated invoices to clients."
+    acceptance_criteria:
+      - "Given I have multiple versions of a file, When I view these files, Then the system clearly marks the latest version"
+      - "Given I'm about to send an older version, When I select it, Then the system warns me 'A newer version exists'"
+      - "Given I want to clean up duplicates, When I click 'Show Duplicates', Then I see grouped versions with the ability to archive older ones"
+    priority: "P1"
+    status: "PENDING"
+
+  # P-004: Research Collector
+  - id: "US-012"
+    persona_id: "P-004"
+    title: "Content-Based Paper Discovery"
+    story: "As Research Collector, I want to search for papers by describing their content or methodology rather than exact title, So that I can find papers I read months ago when I only remember what they were about."
+    acceptance_criteria:
+      - "Given I have 150 papers in my library, When I search for 'attention mechanisms in transformer models', Then I see papers containing that content ranked by relevance"
+      - "Given I remember a paper discussed 'gradient clipping in RNNs' but not the title, When I search using that phrase, Then The paper appears in results"
+      - "Given I have multiple papers on similar topics, When I view search results, Then Papers are clustered by topic similarity"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-013"
+    persona_id: "P-004"
+    title: "Duplicate Paper Detection"
+    story: "As Research Collector, I want automatic detection of duplicate papers when importing new files, So that I stop wasting disk space and confusion from having the same paper saved under different filenames."
+    acceptance_criteria:
+      - "Given I already have a paper in my library, When I import the same paper with different filename, Then System alerts me to the duplicate with confidence score"
+      - "Given A duplicate is detected with 95%+ confidence, When I confirm the merge, Then System keeps one copy and consolidates all tags/notes"
+      - "Given I have papers with slightly different versions, When Importing a new version, Then System offers to 'link as version' rather than delete"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-014"
+    persona_id: "P-004"
+    title: "Citation Network Visualization"
+    story: "As Research Collector, I want to see which papers cite or are cited by papers in my library, So that I can discover related work and understand how my research collection connects together."
+    acceptance_criteria:
+      - "Given I'm viewing a paper that cites 47 references, When I open the citation panel, Then System highlights which cited papers are already in my library"
+      - "Given I have Paper A which cites Paper B, When I view Paper B, Then I see 'Cited by: Paper A' with a bidirectional link"
+      - "Given I'm exploring a new research area, When I identify a seminal paper, Then I can expand its citation graph"
+    priority: "P2"
+    status: "PENDING"
+
+  # P-005: Multi-Device Professional
+  - id: "US-015"
+    persona_id: "P-005"
+    title: "Cross-Device File Locator"
+    story: "As Multi-Device Professional, I want to search for a file and immediately see which devices have it, So that I stop wasting time guessing where I saved something."
+    acceptance_criteria:
+      - "Given I search for a filename, When the search executes, Then results show each device containing that file with timestamp and size"
+      - "Given multiple devices have files with the same name, When viewing results, Then I see a visual indicator showing which version is newest"
+      - "Given I need to access a file from a specific device, When the file is located, Then I can request a direct transfer or access link"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-016"
+    persona_id: "P-005"
+    title: "Smart Version Resolver"
+    story: "As Multi-Device Professional, I want the system to automatically identify and merge duplicate files caused by sync conflicts, So that I stop opening outdated versions by accident."
+    acceptance_criteria:
+      - "Given two or more files exist with similar names indicating a sync conflict, When the system scans for duplicates, Then it presents a comparison view showing differences"
+      - "Given I am reviewing duplicate files, When selecting which version to keep, Then I can preview content side-by-side"
+      - "Given a resolution is confirmed, When the merge completes, Then older duplicates are archived and the canonical version is synced"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-017"
+    persona_id: "P-005"
+    title: "Unified Recent Files Dashboard"
+    story: "As Multi-Device Professional, I want to see a single chronological list of files I worked on recently across all devices, So that I can pick up where I left off regardless of which machine I am using."
+    acceptance_criteria:
+      - "Given I open the system on any device, When the dashboard loads, Then I see files modified in the last 7 days from all connected devices"
+      - "Given I select a recent file from the dashboard, When I click to open it, Then the system retrieves it from the device where it exists"
+      - "Given a file I want is on a device that is offline, When I attempt to access it, Then I see the last-known status"
+    priority: "P1"
+    status: "PENDING"
+
+  # P-006: Ebook Enthusiast
+  - id: "US-018"
+    persona_id: "P-006"
+    title: "ISBN Metadata Rescue"
+    story: "As Ebook Enthusiast, I want to scan my ebook files and automatically fetch correct metadata from ISBN databases, So that I can finally see the actual book titles instead of cryptic filenames."
+    acceptance_criteria:
+      - "Given I have an ebook file with an embedded ISBN, When I run the metadata rescue scan, Then the system fetches correct title, author, series, and cover"
+      - "Given I have multiple ebooks with missing or wrong metadata, When I select them for batch processing, Then the system queues them for ISBN lookup"
+      - "Given an ISBN lookup returns no results, When the scan completes, Then the system flags those files for manual review"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-019"
+    persona_id: "P-006"
+    title: "Duplicate Format Consolidator"
+    story: "As Ebook Enthusiast, I want to see which books exist in multiple formats with a single click, So that I can decide which format to keep."
+    acceptance_criteria:
+      - "Given my library contains the same book in PDF, epub, and mobi formats, When I open the duplicates view, Then the system groups all format variants together"
+      - "Given duplicate books are displayed, When I select a preferred format, Then the system marks that format as primary"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-020"
+    persona_id: "P-006"
+    title: "Series Detective"
+    story: "As Ebook Enthusiast, I want to search for books by plot description or character names, So that I can find books even when my file is named incorrectly."
+    acceptance_criteria:
+      - "Given I remember a plot detail but not the book title, When I type description into search, Then the system returns matching books from my library"
+      - "Given I find a book that is part of a series, When I view the book details, Then the system displays all books in that series"
+      - "Given I am viewing a series list, When a sequel is missing, Then the system shows the missing book with ISBN for easy lookup"
+    priority: "P1"
+    status: "PENDING"
+
+  # P-007: Developer with Messy Vaults
+  - id: "US-021"
+    persona_id: "P-007"
+    title: "Semantic Code Search"
+    story: "As Developer with Messy Vaults, I want to search for code snippets by describing what they do rather than by filename, So that I can find code I saved months ago without remembering what I named the file."
+    acceptance_criteria:
+      - "Given I have a vault with code in various files, When I search for 'email validation', Then the function is returned regardless of filename"
+      - "Given My vault contains embedded code blocks, When I search for functionality, Then code blocks matching the intent are surfaced"
+      - "Given A code snippet exists with surrounding explanatory text, When the snippet is returned, Then the result includes context lines"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-022"
+    persona_id: "P-007"
+    title: "Related Documents Panel"
+    story: "As Developer with Messy Vaults, I want to see semantically related documents when viewing any note, So that I can discover connections between my scattered research."
+    acceptance_criteria:
+      - "Given I have documents on related topics, When I open one, Then the related panel shows semantically similar documents"
+      - "Given Document A mentions a concept also in Document B, When I view either, Then the other appears in the related panel"
+      - "Given Document X links to Document Y, When I view Document Y, Then the system suggests adding a backlink"
+    priority: "P2"
+    status: "PENDING"
+
+  - id: "US-023"
+    persona_id: "P-007"
+    title: "Technology Auto-Tagging"
+    story: "As Developer with Messy Vaults, I want my notes and code snippets to be automatically categorized by the technologies they reference, So that I can filter my entire vault by technology."
+    acceptance_criteria:
+      - "Given A file contains 'import pandas as pd', When the file is indexed, Then it is automatically tagged with 'python' and 'pandas'"
+      - "Given A note mentions 'PostgreSQL' and 'Redis', When the file is indexed, Then it is tagged with those technologies"
+      - "Given My vault has auto-detected technology tags, When I filter by a tag, Then only files containing that technology are shown"
+    priority: "P2"
+    status: "PENDING"
+
+  # P-008: Media Librarian
+  - id: "US-024"
+    persona_id: "P-008"
+    title: "Trip Photo Merger"
+    story: "As Media Librarian, I want to automatically group all photos from my trip into one folder by date taken, So that I can see my vacation as a complete timeline."
+    acceptance_criteria:
+      - "Given photos exist on my phone and camera from the same date range, When I connect both devices, Then all photos are merged into a single dated folder"
+      - "Given photos have no embedded date metadata, When the system detects timestamps, Then those photos are still placed correctly"
+      - "Given photos from multiple sources share the same capture moment, When the system finds duplicates, Then only one copy is kept"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-025"
+    persona_id: "P-008"
+    title: "Smart Photo Search"
+    story: "As Media Librarian, I want to find photos by describing what's in them, So that I can locate photos without remembering which folder or device they're on."
+    acceptance_criteria:
+      - "Given I have thousands of photos, When I type 'beach sunset' in search, Then all matching photos appear regardless of location"
+      - "Given photos have no tags or labels, When I search using natural language, Then the system finds relevant images based on visual content"
+      - "Given I can't remember exact dates, When I search by event description, Then related photos are returned"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-026"
+    persona_id: "P-008"
+    title: "Duplicate Photo Cleaner"
+    story: "As Media Librarian, I want all duplicate copies of the same photo removed automatically, So that I stop wasting storage space."
+    acceptance_criteria:
+      - "Given the same photo exists on my cloud, phone, and computer, When I run the duplicate finder, Then I'm shown one master copy and can delete extras"
+      - "Given photos are slightly different resolutions, When the system scans, Then visually identical photos are grouped"
+      - "Given I'm worried about losing photos, When duplicates are found, Then I can preview them before deletion"
+    priority: "P1"
+    status: "PENDING"
+
+  # P-009: Privacy-Conscious User
+  - id: "US-027"
+    persona_id: "P-009"
+    title: "Air-Gap Verification Mode"
+    story: "As Privacy-Conscious User, I want to run the system in a verified air-gap mode, So that I can prove no data ever leaves my local hardware."
+    acceptance_criteria:
+      - "Given the system is started with --airgap flag, When any operation is performed, Then all network interfaces are monitored"
+      - "Given the system is in air-gap mode, When I review the audit log, Then I see a signed manifest showing zero network calls"
+      - "Given I am offline, When I start the system, Then it verifies no external connectivity exists before initializing"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-028"
+    persona_id: "P-009"
+    title: "Granular Exclusion Rules"
+    story: "As Privacy-Conscious User, I want to define exclusion rules at file, directory, and pattern levels, So that I maintain control over which documents enter the index."
+    acceptance_criteria:
+      - "Given I have a sensitive directory, When I add an exclusion rule, Then the system immediately purges any previously indexed content"
+      - "Given I mark a file as never-index, When the indexer encounters it, Then the file is skipped and logged"
+      - "Given I want to exclude by pattern, When I define a glob pattern, Then the system applies it retroactively"
+    priority: "P0"
+    status: "PENDING"
+
+  - id: "US-029"
+    persona_id: "P-009"
+    title: "Encrypted Index Storage"
+    story: "As Privacy-Conscious User, I want all indexed data encrypted at rest with keys I control, So that indexed content remains unreadable without my decryption."
+    acceptance_criteria:
+      - "Given I initialize the system, When I provide a passphrase, Then all indexed content is encrypted using AES-256-GCM"
+      - "Given the system needs to read indexed content, When I have not provided my passphrase, Then the system prompts for it"
+      - "Given I want to purge the index, When I issue secure-delete, Then the system performs multi-pass overwrite"
+    priority: "P0"
+    status: "PENDING"
+
+  # P-010: Solo Entrepreneur
+  - id: "US-030"
+    persona_id: "P-010"
+    title: "Client File Finder"
+    story: "As Solo Entrepreneur, I want to instantly find all files for a specific client by name, So that I can pull up proposals and deliverables during client calls."
+    acceptance_criteria:
+      - "Given I have files for multiple clients, When I type a client's name, Then all related files appear within 2 seconds"
+      - "Given I am on a client call, When I search the client name, Then the most recent proposal is highlighted"
+      - "Given I have files with similar names for different clients, When I search, Then results are clearly labeled by client"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-031"
+    persona_id: "P-010"
+    title: "Business/Personal Separator"
+    story: "As Solo Entrepreneur, I want automatic separation of business files from personal downloads, So that I never accidentally send a personal file to a client."
+    acceptance_criteria:
+      - "Given I download a mix of files daily, When the system processes my downloads folder, Then business files are tagged and moved automatically"
+      - "Given I am attaching a file to an email, When I browse recent files, Then personal files are clearly marked"
+      - "Given the system misclassified a file, When I correct it, Then the system learns for future classifications"
+    priority: "P1"
+    status: "PENDING"
+
+  - id: "US-032"
+    persona_id: "P-010"
+    title: "Deliverable Version Tracker"
+    story: "As Solo Entrepreneur, I want to see version history for every client deliverable, So that I always send the correct version."
+    acceptance_criteria:
+      - "Given I have multiple versions of a proposal, When I view the file, Then I see a timeline showing which version was sent and when"
+      - "Given I need to send a deliverable, When I select the file, Then the system shows the latest approved version"
+      - "Given a client asks for a previous version, When I browse history, Then I can restore any past version"
+    priority: "P1"
+    status: "PENDING"
+
+features_discovered:
+  - id: "FTR-010"
+    name: "Natural Language Search"
+    description: "Find files by describing what you remember using natural language"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001", "P-004", "P-006", "P-008"]
+    user_stories: ["US-001", "US-012", "US-020", "US-025"]
+
+  - id: "FTR-011"
+    name: "Auto-Organize"
+    description: "Files sorted automatically into folders based on content"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001", "P-002"]
+    user_stories: ["US-002"]
+
+  - id: "FTR-012"
+    name: "Duplicate Finder"
+    description: "Detect and manage duplicate files across all locations"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001", "P-004", "P-006", "P-008"]
+    user_stories: ["US-003", "US-013", "US-019", "US-026"]
+
+  - id: "FTR-013"
+    name: "Search-First UI"
+    description: "Flat interface with search as primary entry point"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001"]
+    user_stories: ["US-004"]
+
+  - id: "FTR-014"
+    name: "AI Interview Profiling"
+    description: "Learn user preferences through conversational interview"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001"]
+    user_stories: ["US-005"]
+
+  - id: "FTR-015"
+    name: "ISBN Metadata Rescue"
+    description: "Fetch book metadata from ISBN databases"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-006"]
+    user_stories: ["US-018"]
+
+  - id: "FTR-016"
+    name: "Local-Only Processing"
+    description: "All AI processing stays on local hardware with encryption"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-009"]
+    user_stories: ["US-027", "US-028", "US-029"]
+
+  - id: "FTR-017"
+    name: "Cross-Device Sync"
+    description: "Unified view of files across multiple devices"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-005"]
+    user_stories: ["US-015", "US-016", "US-017"]
+
+  - id: "FTR-018"
+    name: "Business Document Tools"
+    description: "Tax collection, contract alerts, version tracking"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-003", "P-010"]
+    user_stories: ["US-009", "US-010", "US-011", "US-030", "US-031", "US-032"]
+
+  - id: "FTR-019"
+    name: "Family Organizer"
+    description: "Organize files by family member, school, medical"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-002"]
+    user_stories: ["US-006", "US-007", "US-008"]
+
+  - id: "FTR-020"
+    name: "Research Tools"
+    description: "Citation networks, paper similarity, duplicate detection"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-004"]
+    user_stories: ["US-012", "US-013", "US-014"]
+
+  - id: "FTR-021"
+    name: "Developer Tools"
+    description: "Semantic code search, auto-tagging, related docs"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-007"]
+    user_stories: ["US-021", "US-022", "US-023"]
+
+  - id: "FTR-022"
+    name: "Media Organizer"
+    description: "Photo organization, duplicate cleaning, smart search"
+    discovery_status: "WANTED"
+    priority_hint: "MEDIUM"
+    requested_by: ["P-008"]
+    user_stories: ["US-024", "US-025", "US-026"]

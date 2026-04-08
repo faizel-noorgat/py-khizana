@@ -1,34 +1,91 @@
 file_id: "project-brief"
 schema_version: "3.0"
-last_updated: ""
-updated_by: ""  # claude | human
+last_updated: "2026-04-08"
+updated_by: "claude"
 
-raw_vision: ""
-overview: ""
-current_landscape: ""
+raw_vision: |
+  Its run as a webserver on my local network that has access to all my computers. It essentially an ai powered file organization and retrieval engine. Uses a custom pipeline to process documents in shared locations. For most documents we use some parsing libraries to parse the documents, use agentic rag to chunk and create embeddings, uses different voyager embeddings models depending on the content type. Based on an initial interview with me the app will know me, based on my likes, dislikes, work, business, interests, hobbies, etc. Based on this understand and tagging and categorization of documents, meta data descriptions, the app will re-organize the documents. for ebooks, pdfs and epubs, these will go through a isbn validation, i.e. check the book for isbn number, i found a repo that has this code built out that we can reuse. for non ebook pdfs, these will be treated exactly the same as other documents. we will have an exclusion list of files, such as binaries, and python project folders, unsure about having an inclusion list.
+
+  On the search side we can use rag to find the documents that we are looking for and maybe bm25. I have some documentation for advanced rag techniques that i want to use. You can create a reference folder in the project and i can drop the files there.
+
+overview: "Users with scattered digital files across multiple devices and storage systems need AI-powered organization, deduplication, and semantic search to find and manage documents in seconds instead of minutes."
+current_landscape: |
+  25 years of accumulated files scattered across multiple computers, cloud storage (Google Drive, OneDrive, Dropbox), NAS, and external drives. Current organization attempts fail due to:
+  - Creating too many folder levels, becoming unusable
+  - Forgetting conventions (e.g., "resources vs areas" — where does something go?)
+  - Duplication across devices and drives with no deduplication
+  - 15+ minutes wasted navigating folders before starting work
+  - No unified search across all document types (Excel, Word, PDFs, ebooks)
+  - No version history or way to track file changes over time
+  - Existing tools (OS search, NAS indexing) don't understand content or context
 
 goals:
   - id: "G-001"
-    description: ""
+    description: "Reduce document search time from 15+ minutes to seconds"
+  - id: "G-002"
+    description: "Automate file organization using AI based on user context and document content"
+  - id: "G-003"
+    description: "Eliminate duplicate files across devices and storage systems"
+  - id: "G-004"
+    description: "Provide semantic search across all document types (PDF, Office, ebooks, etc.)"
+  - id: "G-005"
+    description: "Track file changes with git-like version history (branches, commits, diffs)"
+  - id: "G-006"
+    description: "Offload cognitive burden of sorting/organizing for users with ADHD/attention challenges"
 
 scope:
   in_scope:
-    - ""
+    - "PDF documents (ebooks and non-ebook PDFs)"
+    - "Ebook formats (epub, mobi)"
+    - "Office documents (Word, Excel, PowerPoint)"
+    - "Developer files (code, configs, markdown)"
+    - "Media files (images, videos, audio)"
+    - "Local network deployment (webserver on LAN)"
+    - "AI-powered semantic search (RAG + BM25)"
+    - "Automatic file organization and deduplication"
+    - "User profiling via AI interview"
+    - "Git-like version history"
   out_of_scope:
-    - ""
+    - "Air-gap mode with local LLM models (post-MVP)"
+    - "Native mobile application"
+    - "Advanced analytics and reporting dashboards"
 
 success_criteria:
   - id: "SC-001"
-    type: ""  # LAUNCH | OUTCOME
-    description: ""
+    type: "LAUNCH"
+    description: "All P0 features working end-to-end (semantic search, auto-organize, duplicate detection, ISBN metadata)"
+  - id: "SC-002"
+    type: "LAUNCH"
+    description: "At least one round of user testing completed with feedback incorporated"
+  - id: "SC-003"
+    type: "LAUNCH"
+    description: "Local-only processing verified - no data sent to external servers"
+  - id: "SC-004"
+    type: "OUTCOME"
+    description: "Users report finding files in seconds instead of minutes"
+  - id: "SC-005"
+    type: "OUTCOME"
+    description: "Regular usage pattern established (users return to the system daily/weekly)"
 
 constraints:
   - id: "C-001"
-    description: ""
+    description: "Solo developer - single person effort"
+  - id: "C-002"
+    description: "No hard deadline or budget cap"
+  - id: "C-003"
+    description: "Avoid hosted services - local deployment preferred"
+  - id: "C-004"
+    description: "LLM APIs allowed: OpenAI, Claude, OpenRouter, Kimi, DeepSeek, MiniMax, GLM, Qwen, Alibaba Cloud, GPT Codex"
 
 dependencies:
   - id: "DEP-001"
-    description: ""
+    description: "LLM API providers (OpenAI, Claude, OpenRouter, etc.) for embeddings and AI processing"
+  - id: "DEP-002"
+    description: "ISBN database APIs for book metadata enrichment"
+  - id: "DEP-003"
+    description: "OAuth providers for authentication"
+  - id: "DEP-004"
+    description: "Voyager embedding models for document embeddings"
 
 timeline:
   start_date: ""
@@ -37,5 +94,3 @@ timeline:
     - id: "M-001"
       description: ""
       target_date: ""
-
-notes: ""
