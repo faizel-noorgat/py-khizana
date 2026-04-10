@@ -335,12 +335,31 @@ glossary:
 
 ## notes
 
-**When:** Any time during discovery
+**When:** During discovery (Sections 1-11) — parking lot for overflow
 
-**How to complete:**
-- Free-form capture space for anything not fitting structured fields
-- Use for partial thoughts, user anecdotes, conversation notes
-- Does not need structure — raw capture
+**How to use during discovery:**
+- When information surfaces that fits a later section, park it here temporarily
+- Example: "AI interview feature" parks here during Section 2 → moves to `features` at Section 12
+- This allows natural conversation flow without forcing section jumps
+
+**Mandatory processing at Section 12:**
+Before handoff, you MUST empty `notes` into structured sections:
+
+| If notes contains... | Move to... |
+|---------------------|------------|
+| User characteristics, preferences | `user_needs` |
+| Feature ideas, personalization | `features` |
+| Performance, security requirements | `requirements.non_functional` |
+| Risks, concerns | `risks` |
+| Questions, unknowns | `open_questions` |
+| Domain terms | `glossary` |
+
+**Section 12 gate check:**
+- Read `notes` field
+- For each item, identify correct destination
+- Move to structured section
+- Delete from `notes`
+- `notes` should be empty (or contain only truly unstructured anecdotes)
 
 ---
 

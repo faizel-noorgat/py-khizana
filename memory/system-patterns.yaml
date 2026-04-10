@@ -1,19 +1,724 @@
 file_id: "system-patterns"
 schema_version: "1.0"
-last_updated: ""
-updated_by: ""  # claude | human
+last_updated: "2026-04-10"
+updated_by: "claude"
+
+actors:
+  - id: "ACT-001"
+    name: "End User/Searcher"
+    type: "HUMAN"
+    primary_goal: "Find any document quickly using semantic/natural language search and organize files automatically"
+    key_interactions:
+      - "Search queries"
+      - "Document viewing"
+      - "Organization requests"
+      - "Duplicate management"
+  - id: "ACT-002"
+    name: "Administrator"
+    type: "HUMAN"
+    primary_goal: "Configure system settings, manage monitored folders, set up exclusion rules, and maintain local webserver deployment"
+    key_interactions:
+      - "Configuration changes"
+      - "Folder management"
+      - "User management (if multi-user)"
+  - id: "ACT-003"
+    name: "Family/Business User"
+    type: "HUMAN"
+    primary_goal: "Search and organize documents within their personal or business scope (shared access)"
+    key_interactions:
+      - "Scoped searches"
+      - "Personal document management"
+  - id: "ACT-004"
+    name: "Background Worker"
+    type: "SYSTEM"
+    primary_goal: "Process documents asynchronously - parsing, chunking, embedding generation, duplicate detection, metadata enrichment (ISBN)"
+    key_interactions:
+      - "File system scanning"
+      - "LLM API calls"
+      - "ISBN database queries"
+      - "Embedding storage"
+  - id: "ACT-005"
+    name: "Scheduled Job"
+    type: "SYSTEM"
+    primary_goal: "Run periodic maintenance tasks - nightly organization runs, cleanup, index optimization, sync checks across devices"
+    key_interactions:
+      - "Triggering organization workflows"
+      - "Cleanup routines"
+      - "Health checks"
+
+architecture:
+  components:
+    - id: "CMP-001"
+      name: "User Interface"
+      responsibility: "Search-first web interface where users submit queries, view results, trigger organization actions"
+      actors: ["ACT-001", "ACT-002", "ACT-003"]
+      inputs:
+        - from: "ACT-001"
+          description: "Search queries, organization requests, document actions"
+      outputs:
+        - to: "Search Engine"
+          description: "Search requests"
+        - to: "Organization Engine"
+          description: "Organization commands"
+      dependencies: ["Search Engine", "Organization Engine", "User Profile Manager"]
+    - id: "CMP-002"
+      name: "Admin Settings"
+      responsibility: "Configuration interface for monitored folders, exclusion rules, user preferences"
+      actors: ["ACT-002"]
+      inputs:
+        - from: "ACT-002"
+          description: "Folder paths, exclusion patterns, system settings"
+      outputs:
+        - to: "Document Processor"
+          description: "Monitored folder list, exclusion rules"
+        - to: "Index Store"
+          description: "Configuration updates"
+      dependencies: ["Document Processor", "Index Store"]
+    - id: "CMP-003"
+      name: "Document Processor + Tagging"
+      responsibility: "Parse documents, generate embeddings, auto-tag content based on analysis"
+      actors: ["ACT-004"]
+      inputs:
+        - from: "File System"
+          description: "Raw documents (PDF, Office, ebooks, media)"
+        - from: "Admin Settings"
+          description: "Monitored folder paths, exclusion rules"
+      outputs:
+        - to: "Index Store"
+          description: "Embeddings, tags, metadata"
+        - to: "Categorization Engine"
+          description: "Tagged document index (after bulk processing)"
+      dependencies: ["Index Store", "Metadata Service"]
+    - id: "CMP-004"
+      name: "Categorization Engine"
+      responsibility: "Analyze entire document collection to build cohesive folder structure and categorization"
+      actors: ["ACT-004", "ACT-005"]
+      inputs:
+        - from: "Document Processor"
+          description: "Tagged document index (after bulk processing)"
+        - from: "User Profile Manager"
+          description: "User preferences for organization style"
+      outputs:
+        - to: "Organization Engine"
+          description: "Folder structure plan, category assignments"
+      dependencies: ["Index Store", "User Profile Manager"]
+      notes: "Can only run after large portion of files processed"
+    - id: "CMP-005"
+      name: "Search Engine"
+      responsibility: "Execute semantic search using RAG and BM25, return ranked results"
+      actors: ["ACT-001", "ACT-003"]
+      inputs:
+        - from: "User Interface"
+          description: "Natural language search queries"
+        - from: "Index Store"
+          description: "Embeddings, document metadata"
+      outputs:
+        - to: "User Interface"
+          description: "Ranked search results with relevance scores"
+      dependencies: ["Index Store"]
+    - id: "CMP-006"
+      name: "Organization Engine"
+      responsibility: "Execute file reorganization based on categorization plan (moves, renames)"
+      actors: ["ACT-004", "ACT-005"]
+      inputs:
+        - from: "Categorization Engine"
+          description: "Folder structure plan, file assignments"
+        - from: "User Interface"
+          description: "Manual organization commands"
+      outputs:
+        - to: "File System"
+          description: "File moves, renames, folder creation"
+        - to: "Index Store"
+          description: "Updated file locations"
+      dependencies: ["Categorization Engine", "Index Store"]
+    - id: "CMP-007"
+      name: "Duplicate Detector"
+      responsibility: "Identify duplicate files across all storage locations using content hashing and similarity"
+      actors: ["ACT-004", "ACT-001"]
+      inputs:
+        - from: "Index Store"
+          description: "Document fingerprints, content hashes"
+        - from: "User Interface"
+          description: "Duplicate scan requests"
+      outputs:
+        - to: "User Interface"
+          description: "Duplicate groups with recommendations"
+        - to: "Organization Engine"
+          description: "Deduplication actions"
+      dependencies: ["Index Store"]
+    - id: "CMP-008"
+      name: "Metadata Service"
+      responsibility: "Enrich document metadata via external APIs (ISBN databases for books)"
+      actors: ["ACT-004"]
+      inputs:
+        - from: "Document Processor"
+          description: "ISBN numbers, document identifiers"
+      outputs:
+        - to: "Index Store"
+          description: "Enriched metadata (title, author, series, cover)"
+      dependencies: ["External: ISBN Databases"]
+    - id: "CMP-009"
+      name: "User Profile Manager"
+      responsibility: "Manage user preferences via AI interview, store profile data for personalization"
+      actors: ["ACT-001", "ACT-002"]
+      inputs:
+        - from: "User Interface"
+          description: "AI interview responses, preference updates"
+      outputs:
+        - to: "Categorization Engine"
+          description: "User preferences for organization"
+        - to: "Missing Document Detector"
+          description: "Expected document types list"
+      dependencies: ["Index Store"]
+    - id: "CMP-010"
+      name: "Index Store"
+      responsibility: "Store and retrieve document embeddings, metadata, tags, and search index"
+      actors: ["ACT-004"]
+      inputs:
+        - from: "Document Processor"
+          description: "Embeddings, tags, metadata"
+        - from: "Metadata Service"
+          description: "Enriched metadata"
+        - from: "Organization Engine"
+          description: "File location updates"
+      outputs:
+        - to: "Search Engine"
+          description: "Embeddings for similarity search"
+        - to: "Categorization Engine"
+          description: "Document collection data"
+        - to: "Missing Document Detector"
+          description: "Indexed document list"
+      dependencies: []
+    - id: "CMP-011"
+      name: "Missing Document Detector"
+      responsibility: "Flag expected documents that are absent from the collection (bank statements, visa renewals, insurance docs)"
+      actors: ["ACT-005", "ACT-001"]
+      inputs:
+        - from: "User Profile Manager"
+          description: "Expected document types based on user profile"
+        - from: "Index Store"
+          description: "Indexed documents"
+      outputs:
+        - to: "User Interface"
+          description: "Missing document alerts and recommendations"
+      dependencies: ["Index Store", "User Profile Manager"]
+
+system_boundaries:
+  in_scope:
+    - "Local network deployment (webserver on LAN)"
+    - "Document processing (PDF, Office, ebooks, developer files, media)"
+    - "Semantic search using RAG and BM25"
+    - "Automatic file organization and deduplication"
+    - "User profiling via AI interview"
+    - "ISBN validation and metadata enrichment for ebooks"
+    - "Git-like version history"
+    - "Duplicate detection across storage locations"
+    - "Missing document detection"
+  out_of_scope:
+    - capability: "Native mobile application (iOS/Android)"
+      reason: "FUTURE_PHASE"
+    - capability: "Air-gap mode with local LLM models"
+      reason: "FUTURE_PHASE"
+    - capability: "Cloud storage integration (Google Drive, OneDrive)"
+      reason: "FUTURE_PHASE"
+    - capability: "Advanced analytics and reporting dashboards"
+      reason: "FUTURE_PHASE"
+
+integration_points:
+  outbound:
+    - id: "INT-001"
+      external_system: "LLM API Providers (OpenAI, Claude, OpenRouter, Kimi, DeepSeek, MiniMax, GLM, Qwen, Alibaba Cloud)"
+      purpose: "Generate embeddings, process AI interview, power categorization and tagging"
+      direction: "REQUEST_RESPONSE"
+      pattern: "ASYNC"
+      data_format: "STRUCTURED"
+      criticality: "HIGH"
+    - id: "INT-002"
+      external_system: "ISBN Database Services (Google Books, OpenLibrary, etc.)"
+      purpose: "Fetch book metadata (title, author, series, cover) for ebooks"
+      direction: "REQUEST_RESPONSE"
+      pattern: "ASYNC"
+      data_format: "STRUCTURED"
+      criticality: "MEDIUM"
+    - id: "INT-003"
+      external_system: "Google OAuth, Microsoft OAuth"
+      purpose: "User authentication for multi-user access"
+      direction: "REQUEST_RESPONSE"
+      pattern: "SYNC"
+      data_format: "STRUCTURED"
+      criticality: "MEDIUM"
+  inbound: []  # System is self-contained, no external webhooks or pushes
+
+quality_attributes:
+  - id: "QA-001"
+    attribute: "PERFORMANCE"
+    requirement: "Search queries return results within 2-3 seconds; document indexing and embedding generation can take longer as it happens asynchronously in the background"
+    priority: "SHOULD_HAVE"
+    notes: "User indicated moderate performance is acceptable - occasional delays fine for complex tasks"
+  - id: "QA-002"
+    attribute: "AVAILABILITY"
+    requirement: "System runs on local LAN; occasional downtime acceptable as this is a personal/family tool, not a business-critical service"
+    priority: "SHOULD_HAVE"
+    notes: "No SLA required; user can restart server if needed"
+  - id: "QA-003"
+    attribute: "SECURITY"
+    requirement: "All document storage and index data stays on local server; no cloud storage for user files"
+    priority: "MUST_HAVE"
+    notes: "Constraint C-003 from PRD - local deployment preferred"
+  - id: "QA-004"
+    attribute: "SECURITY"
+    requirement: "Document content is uploaded to LLM APIs (OpenAI, Claude, etc.) for embeddings and AI processing; user accepts this data sharing"
+    priority: "MUST_HAVE"
+    notes: "Full trust model - document content sent to external LLM providers"
+  - id: "QA-005"
+    attribute: "SECURITY"
+    requirement: "System handles PII (personal data) and business-confidential documents; access controlled per user"
+    priority: "MUST_HAVE"
+    notes: "Multi-user environment with separate access scopes"
+  - id: "QA-006"
+    attribute: "SECURITY"
+    requirement: "Full OAuth authentication via Google/Microsoft for multi-user access; each user has isolated document scope"
+    priority: "MUST_HAVE"
+    notes: "Family members and business users need separate accounts"
+  - id: "QA-007"
+    attribute: "OBSERVABILITY"
+    requirement: "Built-in web dashboard showing indexing progress, background worker status, LLM API errors, queue depth"
+    priority: "SHOULD_HAVE"
+    notes: "Helps debug issues without external monitoring tools"
+
+domain_model:
+  - id: "DM-001"
+    entity: "Document"
+    description: "A file tracked by the system - stored on disk with metadata and embeddings in the index"
+    owned_by: "Document Processor (creates), Index Store (stores metadata), Organization Engine (moves)"
+    relationships:
+      - type: "HAS_MANY"
+        target: "Tags"
+      - type: "BELONGS_TO"
+        target: "Category"
+      - type: "BELONGS_TO"
+        target: "User (owner/scope)"
+    attributes:
+      - name: "file_path"
+        description: "original location on disk"
+      - name: "file_hash"
+        description: "content hash for duplicate detection"
+      - name: "file_type"
+        description: "PDF, Office, ebook, media, etc."
+      - name: "title"
+        description: "extracted or inferred title"
+      - name: "content_preview"
+        description: "first N characters for quick display"
+      - name: "embedding_vector"
+        description: "semantic representation (stored separately)"
+      - name: "indexed_at"
+        description: "timestamp of last processing"
+      - name: "user_id"
+        description: "owner for multi-user scoping"
+  - id: "DM-002"
+    entity: "Tag"
+    description: "A label applied to documents - can be auto-generated or user-defined"
+    owned_by: "Document Processor (auto-tags), User Interface (user tags)"
+    relationships:
+      - type: "BELONGS_TO_MANY"
+        target: "Documents"
+    attributes:
+      - name: "name"
+        description: "tag text"
+      - name: "type"
+        description: "AUTO | USER_DEFINED | SYSTEM"
+      - name: "source"
+        description: "how it was created (LLM, user, ISBN lookup)"
+  - id: "DM-003"
+    entity: "Category"
+    description: "An organizational grouping for documents - represents a folder or logical collection"
+    owned_by: "Categorization Engine (creates), User Interface (user adjustments)"
+    relationships:
+      - type: "HAS_MANY"
+        target: "Documents"
+      - type: "HAS_MANY"
+        target: "Tags (associated tags)"
+    attributes:
+      - name: "name"
+        description: "category name"
+      - name: "folder_path"
+        description: "target folder path for organization"
+      - name: "description"
+        description: "what belongs in this category"
+      - name: "parent_id"
+        description: "nullable for nested categories"
+  - id: "DM-004"
+    entity: "User Profile"
+    description: "User's preferences, context, and expected documents learned via AI interview"
+    owned_by: "User Profile Manager"
+    relationships:
+      - type: "HAS_MANY"
+        target: "Documents (owned scope)"
+      - type: "HAS_MANY"
+        target: "ExpectedDocuments"
+    attributes:
+      - name: "oauth_id"
+        description: "external auth provider ID"
+      - name: "preferences"
+        description: "JSON blob of organization preferences"
+      - name: "ai_interview_completed"
+        description: "boolean"
+      - name: "expected_document_types"
+        description: "list of document types user should have"
+  - id: "DM-005"
+    entity: "Expected Document Type"
+    description: "A document type the user should have (bank statements, visa renewals, insurance) - for missing document detection"
+    owned_by: "User Profile Manager"
+    relationships:
+      - type: "BELONGS_TO"
+        target: "User Profile"
+    attributes:
+      - name: "name"
+        description: "document type name (e.g., Bank Statement, Annual Visa)"
+      - name: "frequency"
+        description: "how often expected (monthly, yearly, one-time)"
+      - name: "last_seen"
+        description: "date last found in collection"
 
 architectural_decisions:
   - id: "ADR-001"
-    title: ""
-    status: ""  # PROPOSED | ACCEPTED | DEPRECATED | SUPERSEDED
+    title: "Single Unified System Architecture"
+    status: "ACCEPTED"
     superseded_by: ""
-    context: ""
-    decision: ""
+    context: |
+      The system is built by a solo developer for personal/family/small business use on a local LAN.
+      All components (web UI, document processing, search, organization) work together on one machine.
+      No team boundaries or massive scale differences exist.
+    decision: "Build as a single unified system with one codebase, one deployment, all components working together on one server."
+    rationale: |
+      Simpler to build and operate for a solo developer.
+      No network complexity between components.
+      Single configuration and monitoring point.
+      Can be split later if specific parts need independent scaling.
+    alternatives_considered:
+      - name: "Microservices architecture"
+        rejected_reason: "Overkill for single-developer, personal-use tool. Adds deployment and communication complexity without benefit."
+      - name: "Frontend/Backend separation"
+        rejected_reason: "Not needed since the web UI and API are tightly coupled. A monolithic web framework handles both well."
     consequences:
-      positive: []
-      negative: []
-      neutral: []
+      positive:
+        - "Faster development - shared code, single deployment"
+        - "Simpler debugging - one log location, one process tree"
+        - "Lower operational overhead"
+      negative:
+        - "All components share resources (CPU, memory)"
+        - "A crash in one component could affect others"
+      risks:
+        - "May need refactoring if scale dramatically increases"
+  - id: "ADR-002"
+    title: "Background Processing via Task Queue"
+    status: "ACCEPTED"
+    superseded_by: ""
+    context: |
+      Document processing (parsing, embeddings, categorization) can take minutes per file.
+      LLM API calls are slow and may fail.
+      User interface must remain responsive during processing.
+    decision: "Use a task queue with message broker for all async processing. Each document is an independent job."
+    rationale: |
+      Keeps UI responsive while heavy processing happens in background.
+      Automatic retries on failure.
+      Each document job is independent - no system state corruption on failure.
+      Dashboard can show job queue status.
+    alternatives_considered:
+      - name: "Synchronous processing"
+        rejected_reason: "Would block UI during indexing, unacceptable user experience."
+      - name: "Thread pool"
+        rejected_reason: "Less robust than task queue - no persistence, no retries, harder to monitor."
+    consequences:
+      positive:
+        - "UI stays responsive"
+        - "Failed jobs auto-retry"
+        - "Can monitor queue depth and job status"
+      negative:
+        - "Additional component (message broker) to manage"
+        - "Jobs in progress lost on worker crash (but auto-requeued)"
+      risks:
+        - "Message broker becomes single point of failure for new jobs"
+  - id: "ADR-003"
+    title: "Use Dedicated Vector Database for Embedding Storage"
+    status: "PROVISIONAL"
+    superseded_by: ""
+    context: |
+      Semantic search requires vector similarity queries over document embeddings.
+      Embeddings must be stored and retrieved efficiently for thousands of documents.
+      Need to combine vector search with keyword search (BM25).
+    decision: "Use a dedicated vector database for embedding storage and similarity search."
+    rationale: |
+      Purpose-built for vector similarity search.
+      Scales well with document count.
+      Supports filtering by metadata (user, tags, etc.).
+    alternatives_considered:
+      - name: "Relational database with vector extension"
+        rejected_reason: "Considered but keeping provisional - may choose this if we want fewer components."
+      - name: "In-memory vector storage"
+        rejected_reason: "Doesn't scale, no persistence, no efficient similarity search."
+    consequences:
+      positive:
+        - "Fast semantic search"
+        - "Metadata filtering built-in"
+      negative:
+        - "Additional database component"
+      risks:
+        - "Final tech selection in Phase 03"
+  - id: "ADR-004"
+    title: "Full OAuth Authentication via Google/Microsoft"
+    status: "ACCEPTED"
+    superseded_by: ""
+    context: |
+      System supports multiple users (family members, business users).
+      Each user should have isolated document scope.
+      User wants familiar login experience (Google/Microsoft accounts).
+    decision: "Implement OAuth 2.0 authentication via Google and Microsoft identity providers."
+    rationale: |
+      No password management for the app.
+      Users already have Google/Microsoft accounts.
+      Familiar login flow for non-technical users.
+      Providers handle security, MFA, session management.
+    alternatives_considered:
+      - name: "Local username/password"
+        rejected_reason: "More work to secure, users need to remember another password."
+      - name: "No authentication"
+        rejected_reason: "Doesn't support multi-user scoping required by personas."
+    consequences:
+      positive:
+        - "No password storage needed"
+        - "Familiar login experience"
+        - "Inherits provider security features"
+      negative:
+        - "Dependency on external OAuth providers"
+        - "Cannot login if provider is down"
+      risks:
+        - "OAuth provider outage blocks new logins"
+  - id: "ADR-005"
+    title: "Individual File Moves with Transaction Log"
+    status: "ACCEPTED"
+    superseded_by: ""
+    context: |
+      Organization Engine moves/renames files based on categorization.
+      Moves could fail (disk full, permissions) or crash mid-batch.
+      User wants ability to review and undo changes.
+    decision: "Log each planned move before execution, execute individually, support rollback from log."
+    rationale: |
+      Safer than batch moves - failures don't cascade.
+      Audit trail of all file operations.
+      Can resume after crash by reading log.
+      User can review move history.
+    alternatives_considered:
+      - name: "All-or-nothing batch transaction"
+        rejected_reason: "Too rigid - single failure aborts entire batch."
+      - name: "Fire-and-forget moves"
+        rejected_reason: "No recovery or audit capability."
+    consequences:
+      positive:
+        - "Clear audit trail"
+        - "Can resume after failure"
+        - "User can rollback changes"
+      negative:
+        - "Slower due to logging overhead"
+      risks:
+        - "Log could grow large over time"
+
+architectural_risks:
+  - id: "AR-001"
+    description: "Embedding generation for large document collections could lead to unexpected LLM API costs. Each document requires API calls for embeddings and potentially categorization."
+    likelihood: "MEDIUM"
+    impact: "MEDIUM"
+    mitigation: |
+      - Implement usage monitoring dashboard showing API calls and costs
+      - Batch processing to reduce API calls (process multiple documents in one request where possible)
+      - Cache embeddings - never re-generate for unchanged files
+      - Set configurable daily/weekly processing limits
+      - User can pause processing if costs exceed threshold
+    source: "PRD R-002"
+  - id: "AR-002"
+    description: "Single-person project risks loss of momentum, procrastination, or abandonment due to complexity or competing priorities."
+    likelihood: "MEDIUM"
+    impact: "HIGH"
+    mitigation: |
+      - Break implementation into small, deliverable increments (Phase 06)
+      - Maintain visible progress tracking
+      - Start with core P0 features only
+      - Regular commit schedule
+    source: "PRD R-001"
+  - id: "AR-003"
+    description: "ADR-003 marked vector database as PROVISIONAL. Wrong choice could require migration later."
+    likelihood: "LOW"
+    impact: "MEDIUM"
+    mitigation: |
+      - Research alternatives (relational database with vector extension) in Phase 03
+      - Choose based on: simplicity, performance, integration with rest of stack
+      - Design embedding interface to be swappable
+    source: "ADR-003"
+  - id: "AR-004"
+    description: "Organization Engine moves and renames user files. Unsafe operations could result in lost or corrupted files."
+    likelihood: "LOW"
+    impact: "HIGH"
+    mitigation: |
+      - Implement copy-then-move pattern: copy file to new location, verify copy succeeds, then delete original
+      - Transaction log of all file operations
+      - Rollback capability from log
+      - Admin setting for manual approval vs auto-execute
+      - Original files remain until move confirmed successful
+    source: "Activity 7 user confirmation"
+  - id: "AR-005"
+    description: "AI-based categorization and folder structure generation may produce unexpected or incorrect results that frustrate users."
+    likelihood: "MEDIUM"
+    impact: "MEDIUM"
+    mitigation: |
+      - Use user profile context to guide categorization decisions
+      - Admin setting to review before execution
+      - Easy undo/rollback mechanism
+      - User can manually adjust categories
+      - Feedback loop to improve categorization over time
+    source: "User stories for auto-organization"
+  - id: "AR-006"
+    description: "Authentication relies on Google/Microsoft OAuth. Provider outage blocks new logins; provider API changes could break integration."
+    likelihood: "LOW"
+    impact: "MEDIUM"
+    mitigation: |
+      - Local admin fallback authentication for emergency access
+      - Keep OAuth integration simple (standard OAuth 2.0 flow)
+      - Monitor for provider API deprecation notices
+    source: "ADR-004"
+  - id: "AR-007"
+    description: "Background workers could crash, leaving jobs in progress incomplete. Message broker failure blocks new job submission."
+    likelihood: "LOW"
+    impact: "MEDIUM"
+    mitigation: |
+      - Each document is independent job - no cascading failures
+      - Jobs auto-requeued on worker restart
+      - Message broker runs on same machine - simple topology
+      - Dashboard shows job queue status for monitoring
+    source: "ADR-002"
+  - id: "AR-008"
+    description: "11 logical components with multiple integration points increases development complexity and testing surface."
+    likelihood: "MEDIUM"
+    impact: "MEDIUM"
+    mitigation: |
+      - Single unified system (ADR-001) reduces deployment complexity
+      - Focus on P0 features first - defer P1/P2
+      - Shared data model reduces component boundaries
+      - Phase 06 implementation planning to sequence development
+    source: "Activity 2 component analysis"
+
+business_rules:
+  - id: "BR-001"
+    name: "User Access Scope"
+    feature: ["FTR-004", "FTR-028"]
+    description: "Admin users can see and manage all documents across all users. Family/Business users can only see documents within their assigned scope."
+    enforcing_component: ["CMP-009", "CMP-001"]
+    complexity: "SIMPLE"
+    inputs: ["User role", "user_id", "document owner_id"]
+    outputs: ["Visibility filter", "permission grant/deny"]
+    status: "DEFINED"
+    management: "FIXED"
+  - id: "BR-002"
+    name: "Organization Approval Workflow"
+    feature: ["FTR-005", "FTR-011"]
+    description: |
+      When categorization produces an organization plan:
+      1. System presents plan showing: file name, description, category, tags, preview button, source location, destination location
+      2. User reviews and can: approve move, decline move, request re-analysis
+      3. Declined files trigger AI re-categorization attempt
+      4. Approved files are moved using copy-then-verify-then-delete pattern
+    enforcing_component: ["CMP-006"]
+    complexity: "CONFIGURABLE"
+    inputs: ["Categorization plan", "user approval/rejection decisions"]
+    outputs: ["Move commands", "re-analysis requests"]
+    status: "DEFINED"
+    management: "CONFIGURABLE"
+  - id: "BR-003"
+    name: "File Type Exclusion Rules"
+    feature: ["FTR-008"]
+    description: "System skips indexing for files matching exclusion patterns. Admin can add/remove patterns via settings."
+    enforcing_component: ["CMP-002", "CMP-003"]
+    complexity: "CONFIGURABLE"
+    inputs: ["Exclusion pattern list (glob patterns)", "file path"]
+    outputs: ["Skip decision (boolean)"]
+    status: "DEFINED"
+    management: "CONFIGURABLE"
+    default_exclusions: ["*.exe", "*.dll", "*.so", "*.dylib", "node_modules/", ".git/", "__pycache__/", "*.pyc"]
+  - id: "BR-004"
+    name: "Software Archive Handling"
+    feature: ["FTR-001"]
+    description: |
+      For binary files and archives in Downloads folder:
+      1. Analyze the file to determine its purpose (installer, software package, driver, etc.)
+      2. Move to categorized software location (e.g., Software/Installers/, Software/Drivers/)
+      3. Do NOT attempt to extract content for embedding (skip embedding generation for binaries)
+    enforcing_component: ["CMP-003", "CMP-004"]
+    complexity: "DERIVED"
+    inputs: ["File type (binary/archive)", "file name", "metadata"]
+    outputs: ["Category assignment", "skip-embedding flag"]
+    status: "DEFINED"
+    management: "FIXED"
+  - id: "BR-005"
+    name: "Project Folder Consolidation"
+    feature: ["FTR-005"]
+    description: |
+      When moving project folders (Python projects, code repositories):
+      1. Create zip archive of entire project folder (preserving structure)
+      2. Copy zip to destination
+      3. Verify zip integrity
+      4. Unzip at destination
+      5. Delete original folder after verification
+      This avoids moving thousands of individual files (e.g., venv folders with thousands of files).
+    enforcing_component: ["CMP-006"]
+    complexity: "SIMPLE"
+    inputs: ["Folder type detection (project folder)", "folder path", "destination"]
+    outputs: ["Zip archive", "unpacked folder at destination"]
+    status: "DEFINED"
+    management: "FIXED"
+  - id: "BR-006"
+    name: "Duplicate Resolution Workflow"
+    feature: ["FTR-007", "FTR-012"]
+    description: |
+      When duplicates detected:
+      1. Group duplicates together showing: file paths, sizes, dates, content hash
+      2. Recommend keeping the most recent or largest version
+      3. User can: keep one (delete others), keep all (skip), manual selection
+      4. Deletion uses move-to-trash pattern (not permanent delete)
+    enforcing_component: ["CMP-007"]
+    complexity: "CONFIGURABLE"
+    inputs: ["Duplicate groups", "user selection"]
+    outputs: ["Files to delete", "files to keep"]
+    status: "DEFINED"
+    management: "CONFIGURABLE"
+  - id: "BR-007"
+    name: "ISBN Metadata Validation"
+    feature: ["FTR-002", "FTR-015"]
+    description: |
+      For ebook files:
+      1. Extract ISBN from file metadata or content
+      2. Validate ISBN format (10 or 13 digits, valid checksum)
+      3. Query ISBN database for metadata
+      4. If no ISBN found, flag for manual review
+      5. If ISBN lookup fails, keep filename as fallback title
+    enforcing_component: ["CMP-008"]
+    complexity: "EXTERNAL_API"
+    inputs: ["Ebook file", "ISBN number"]
+    outputs: ["Metadata (title, author, series, cover)", "validation status"]
+    status: "DEFINED"
+    management: "FIXED"
+  - id: "BR-008"
+    name: "Missing Document Alert Threshold"
+    feature: ["FTR-011"]
+    description: |
+      For expected documents (bank statements, annual documents):
+      1. Track when each document type was last seen
+      2. Alert when expected frequency exceeded (e.g., monthly statement not seen in 45 days)
+      3. Alert severity based on importance level configured by user
+    enforcing_component: ["CMP-011"]
+    complexity: "CONFIGURABLE"
+    inputs: ["Expected document types", "last-seen dates", "frequency expectations"]
+    outputs: ["Missing alerts", "severity levels"]
+    status: "DEFINED"
+    management: "CONFIGURABLE"
 
 design_patterns:
   - id: "DP-001"
@@ -32,10 +737,248 @@ component_relationships:
 
 data_flows:
   - id: "DF-001"
-    description: ""
-    source: ""
-    transform: ""
-    sink: ""
+    name: "Document Ingestion Pipeline"
+    description: "How a file goes from discovery to searchable"
+    steps:
+      - step: 1
+        actor: "Background Worker"
+        action: "Discovers"
+        what: "New or changed file in monitored folder"
+        to: "Document Processor"
+      - step: 2
+        actor: "Document Processor"
+        action: "Parses"
+        what: "File content"
+        to: "Internal buffer"
+      - step: 3
+        actor: "Document Processor"
+        action: "Requests"
+        what: "Embedding from LLM API"
+        to: "External LLM Provider"
+      - step: 4
+        actor: "Document Processor"
+        action: "Generates"
+        what: "Auto-tags based on content analysis"
+        to: "Tag list"
+      - step: 5
+        actor: "Document Processor"
+        action: "Stores"
+        what: "Metadata, embedding, tags"
+        to: "Index Store"
+        emits: "Document indexed event"
+  - id: "DF-002"
+    name: "Semantic Search Query"
+    description: "How a natural language query returns relevant documents"
+    steps:
+      - step: 1
+        actor: "End User"
+        action: "Submits"
+        what: "Natural language search query"
+        to: "User Interface"
+      - step: 2
+        actor: "Search Engine"
+        action: "Generates"
+        what: "Query embedding"
+        to: "Internal"
+      - step: 3
+        actor: "Search Engine"
+        action: "Queries"
+        what: "Vector similarity search + BM25"
+        to: "Index Store"
+      - step: 4
+        actor: "Search Engine"
+        action: "Returns"
+        what: "Ranked document results"
+        to: "User Interface"
+  - id: "DF-003"
+    name: "Collection Organization"
+    description: "How documents get reorganized into folders"
+    steps:
+      - step: 1
+        actor: "Scheduled Job"
+        action: "Triggers"
+        what: "Categorization run (after bulk processing threshold)"
+        to: "Categorization Engine"
+      - step: 2
+        actor: "Categorization Engine"
+        action: "Analyzes"
+        what: "All tagged documents together"
+        to: "Internal"
+      - step: 3
+        actor: "Categorization Engine"
+        action: "Proposes"
+        what: "Folder structure and category assignments"
+        to: "Organization Engine"
+      - step: 4
+        actor: "Organization Engine"
+        action: "Executes or Queues"
+        what: "File moves and renames (based on admin setting: manual approval vs auto-execute)"
+        to: "File System"
+        emits: "Organization complete event"
+
+data_storage:
+  - id: "DS-001"
+    data: "Document records (path, hash, type, title, preview, timestamps)"
+    storage_type: "PERSISTENT"
+    stateful: true
+    sensitivity: "INTERNAL"
+  - id: "DS-002"
+    data: "Vector embeddings for all documents"
+    storage_type: "PERSISTENT"
+    stateful: true
+    sensitivity: "INTERNAL"
+    notes: "High storage requirement for large collections"
+  - id: "DS-003"
+    data: "User accounts, preferences, OAuth IDs"
+    storage_type: "PERSISTENT"
+    stateful: true
+    sensitivity: "PII"
+  - id: "DS-004"
+    data: "Tag definitions, category structures, document-tag associations"
+    storage_type: "PERSISTENT"
+    stateful: true
+    sensitivity: "INTERNAL"
+  - id: "DS-005"
+    data: "Background job queue (task queue)"
+    storage_type: "EPHEMERAL"
+    stateful: false
+    sensitivity: "INTERNAL"
+    notes: "Message broker backend"
+  - id: "DS-006"
+    data: "Recent search results for faster repeat queries"
+    storage_type: "CACHE"
+    stateful: false
+    sensitivity: "INTERNAL"
+
+failure_modes:
+  - id: "FM-001"
+    scenario: "External LLM API (OpenAI, Claude, etc.) is down or rate-limited when processing document"
+    affected_components: ["CMP-003", "CMP-004", "CMP-009"]
+    expected_behavior: "GRACEFUL_DEGRADE"
+    details: |
+      - Document ingestion queues the job with retry policy (exponential backoff)
+      - Search works for already-indexed documents
+      - User sees "processing delayed" status for pending documents
+      - Categorization waits for all documents to be tagged
+    severity: "MEDIUM"
+  - id: "FM-002"
+    scenario: "External ISBN lookup service fails during ebook processing"
+    affected_components: ["CMP-008"]
+    expected_behavior: "GRACEFUL_DEGRADE"
+    details: |
+      - Ebook is still indexed with filename as title
+      - Missing metadata flagged for later enrichment
+      - User can manually trigger metadata refresh later
+    severity: "LOW"
+  - id: "FM-003"
+    scenario: "The vector index database crashes or becomes unreachable"
+    affected_components: ["CMP-005", "CMP-003"]
+    expected_behavior: "FAIL_WITH_ERROR"
+    details: |
+      - Search returns "index unavailable" error
+      - Document processing queues new embeddings until index recovers
+      - No data loss - embeddings can be regenerated
+    severity: "HIGH"
+  - id: "FM-004"
+    scenario: "Monitored folder becomes unavailable (network drive offline, permissions changed)"
+    affected_components: ["CMP-003", "CMP-006"]
+    expected_behavior: "GRACEFUL_DEGRADE"
+    details: |
+      - System logs error, continues with accessible folders
+      - Index retains previous state of those files
+      - Admin notified of access failure
+    severity: "MEDIUM"
+  - id: "FM-005"
+    scenario: "Google/Microsoft OAuth is down during login"
+    affected_components: ["CMP-009"]
+    expected_behavior: "GRACEFUL_DEGRADE"
+    details: |
+      - User cannot log in during outage
+      - Already-authenticated sessions continue to work
+      - Admin can use local fallback auth if configured
+    severity: "LOW"
+  - id: "FM-006"
+    scenario: "Background worker crashes mid-document-processing"
+    affected_components: ["CMP-003", "CMP-004"]
+    expected_behavior: "QUEUE_AND_RETRY"
+    details: |
+      - Each document is an independent job - no system state corruption
+      - Job is re-queued automatically when worker restarts
+      - No partial index corruption - vector database handles atomic writes
+    severity: "MEDIUM"
+  - id: "FM-007"
+    scenario: "Organization Engine fails while moving files (disk full, permissions, crash)"
+    affected_components: ["CMP-006"]
+    expected_behavior: "GRACEFUL_DEGRADE"
+    details: |
+      - Each file move is logged before execution
+      - Failed moves are tracked and can be resumed
+      - Admin can review move log and rollback if needed
+      - Original files remain until move confirmed
+    severity: "MEDIUM"
+  - id: "FM-008"
+    scenario: "LLM returns invalid embedding or timeout for a specific document"
+    affected_components: ["CMP-003"]
+    expected_behavior: "QUEUE_AND_RETRY"
+    details: |
+      - Single document fails, others continue
+      - Job retried with exponential backoff (up to 3 attempts)
+      - After max retries, document flagged for manual review
+    severity: "LOW"
+
+deployment_topology:
+  deployment_units:
+    - id: "DU-001"
+      name: "Web Server"
+      description: "Main web application serving the UI and API endpoints"
+      components: ["CMP-001", "CMP-002", "CMP-005", "CMP-009", "CMP-011"]
+      runtime_context: "Local server on LAN (e.g., http://192.168.x.x:8000)"
+      process_type: "Main server process"
+      scaling: "Single instance"
+      notes: "User accesses via browser on LAN"
+    - id: "DU-002"
+      name: "Background Workers"
+      description: "Worker processes for async document processing, categorization, organization"
+      components: ["CMP-003", "CMP-004", "CMP-006", "CMP-007", "CMP-008"]
+      runtime_context: "Separate processes on same machine as Web Server"
+      process_type: "Worker processes"
+      scaling: "Can run multiple worker processes"
+      notes: "Isolated from web server to keep UI responsive during heavy indexing"
+    - id: "DU-003"
+      name: "Task Queue (Message Broker)"
+      description: "Message broker for background job queue"
+      components: []
+      runtime_context: "Same machine as Web Server"
+      process_type: "Message broker"
+      scaling: "Single instance"
+      notes: "Required for background job distribution"
+    - id: "DU-004"
+      name: "Index Store (Vector Database)"
+      description: "Vector database for document embeddings and search"
+      components: ["CMP-010"]
+      runtime_context: "Same machine as Web Server"
+      process_type: "Database server"
+      scaling: "Single instance"
+      notes: "Persistent vector index storage"
+    - id: "DU-005"
+      name: "Metadata Database"
+      description: "Relational database for document metadata, tags, categories, user profiles"
+      components: ["CMP-010"]
+      runtime_context: "Same machine as Web Server"
+      process_type: "Database server"
+      scaling: "Single instance"
+      notes: "Relational database selection in Phase 03"
+  environment_constraints:
+    - "Must run on user-controlled hardware (local server, NAS, or dedicated machine)"
+    - "No cloud hosting requirement"
+    - "LAN-only access (no public internet exposure required)"
+    - "Must have network access to LLM APIs (OpenAI, Claude, etc.)"
+  hardware_requirements:
+    cpu: "Modern multi-core processor for document parsing and embedding generation"
+    ram: "Sufficient for vector index in memory (depends on collection size)"
+    storage: "Space for vector index grows with document count"
+    network: "LAN connectivity + internet for LLM APIs"
+    notes: "Provisional - exact specs to be refined in Phase 03"
 
 security_patterns:
   - id: "SP-001"

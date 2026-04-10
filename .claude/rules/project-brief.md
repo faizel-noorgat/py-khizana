@@ -216,12 +216,46 @@ timeline:
 
 ## notes
 
-**When:** Any time during discovery
+**When:** During discovery (Sections 1-11) — parking lot for overflow
 
-**How to complete:**
-- Free-form capture space for anything not fitting structured fields
-- Use for partial thoughts, follow-up reminders, user anecdotes
-- Does not need structure — raw capture
+**How to use during discovery:**
+- When information surfaces that fits a later section, park it here temporarily
+- Example: "ADHD context" parks here during Section 2 → moves to `user_needs` at Section 12
+- This allows natural conversation flow without forcing section jumps
+
+**Mandatory processing at Section 12:**
+Before handoff, you MUST empty `notes` into structured sections:
+
+| If notes contains... | Move to... |
+|---------------------|------------|
+| User characteristics, preferences | `product-context.yaml` → `user_needs` |
+| Feature ideas, personalization | `product-context.yaml` → `features` |
+| Document types, file formats | `project-brief.yaml` → `scope.in_scope` |
+| Constraints (privacy, local-only) | `project-brief.yaml` → `constraints` |
+| Questions, unknowns | `product-context.yaml` → `open_questions` |
+| Domain terms | `product-context.yaml` → `glossary` |
+
+**Section 12 gate check:**
+- Read `notes` field
+- For each item, identify correct destination
+- Move to structured section
+- Delete from `notes`
+- `notes` should be empty (or contain only truly unstructured anecdotes)
+
+**Example processing:**
+```yaml
+# Before Section 12:
+notes: |
+  ADHD brain struggles with manual organization
+  Document types: PDF, epub, Office files
+  Privacy important - everything local
+
+# After Section 12 processing:
+# - ADHD → product-context.yaml user_needs
+# - Document types → project-brief.yaml scope.in_scope
+# - Privacy → project-brief.yaml constraints
+# - notes: "" (empty)
+```
 
 ---
 

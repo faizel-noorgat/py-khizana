@@ -2,12 +2,13 @@
 project_os_version: "1.0"
 memory_bank: "memory/"
 load_order:
-  - memory/current-state.md
+  - memory/current-state.yaml
   - memory/project-brief.yaml
   - memory/product-context.yaml
+  - memory/user-stories.yaml
   - memory/tech-context.yaml
   - memory/system-patterns.yaml
-  - memory/progress.md
+  - memory/progress.yaml
   - memory/NOTES_NEXT_SESSION.yaml
 ---
 
@@ -16,6 +17,15 @@ load_order:
 ## Session Start
 
 Read the memory bank files in the order defined above. Do not begin any work until all files have been read.
+Load_order:
+  - memory/current-state.yaml
+  - memory/project-brief.yaml
+  - memory/product-context.yaml
+  - memory/user-stories.yaml
+  - memory/tech-context.yaml
+  - memory/system-patterns.yaml
+  - memory/progress.yaml
+  - memory/NOTES_NEXT_SESSION.yaml
 
 ## Active Phase
 

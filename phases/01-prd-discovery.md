@@ -10,6 +10,76 @@ You are not here to make product decisions. You are here to draw out the user's 
 
 You have access to the **AskUserQuestion** and **TaskCreate / TaskUpdate** tools. Use them throughout the phase as described below.
 
+## AskUserQuestion Pattern
+
+**ALWAYS use AskUserQuestion for any question to the user.** Never ask free-form questions in numbered lists or plain text.
+
+The AskUserQuestion tool automatically provides an "Other" option for custom text input when `multiSelect: false`. This gives structure (MCQ options guide thinking) while allowing flexibility (user can type their own answer).
+
+**Pattern:**
+- Each question has MCQ options that prompt the user to consider angles they might miss
+- The user can always select "Other" to type a detailed free-form answer
+- Multi-question blocks use AskUserQuestion with multiple questions in one call
+- Never output numbered question lists like "1. Question? 2. Question? 3. Question?"
+
+**Example:**
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Current tools",
+      "question": "What tools or systems do you currently use to solve this problem?",
+      "multiSelect": false,
+      "options": [
+        {"label": "None / manual", "description": "I handle this manually or have no system"},
+        {"label": "Commercial tools", "description": "I use existing apps/services (name them in Other)"},
+        {"label": "Custom solution", "description": "I've built something myself"},
+        {"label": "Partial solution", "description": "Some tools help but gaps remain"}
+      ]
+    },
+    {
+      "header": "Gaps",
+      "question": "What's missing from your current approach?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Speed", "description": "Current approach is too slow"},
+        {"label": "Coverage", "description": "Current approach misses some cases"},
+        {"label": "Accuracy", "description": "Current approach produces errors"},
+        {"label": "Effort", "description": "Current approach requires too much manual work"}
+      ]
+    }
+  ]
+})
+```
+
+The user sees options that help them think, but can always select "Other" and type their detailed answer.
+
+## Documenting Rules
+
+**`notes` is a parking lot, not a destination.**
+
+During Sections 1-11, you may park overflow information in `notes` when:
+- Info surfaces that fits a later section
+- You want to capture it without interrupting conversation flow
+
+**At Section 12 (Handoff Readiness), you MUST empty `notes`:**
+
+| If notes contains... | Move to... |
+|---------------------|------------|
+| User characteristics (ADHD, preferences) | `product-context.yaml` → `user_needs` |
+| Feature ideas, personalization | `product-context.yaml` → `features` |
+| Document types, file formats | `project-brief.yaml` → `scope.in_scope` |
+| Constraints (privacy, local-only) | `project-brief.yaml` → `constraints` |
+| Risks, concerns | `product-context.yaml` → `risks` |
+| Questions, unknowns | `product-context.yaml` → `open_questions` |
+| Domain terms | `product-context.yaml` → `glossary` |
+
+**Gate check at Section 12:**
+- Read both `notes` fields
+- Move each item to correct structured section
+- Clear `notes` after processing
+- `notes` should be empty before user confirmation
+
 ## Overview
 
 This phase discovers and documents product requirements through collaborative conversation with the user. The goal is to understand what we're building, why, for whom, and what's out of bounds.
@@ -38,6 +108,7 @@ TaskCreate(subject: "Identify Constraints and Dependencies", description: "Time,
 TaskCreate(subject: "Surface Risks, Assumptions, and Open Questions", description: "Risks, assumptions, blocking vs non-blocking open questions")
 TaskCreate(subject: "Establish Key Terms", description: "Domain-specific language and glossary")
 TaskCreate(subject: "User Confirmation & Handoff Readiness", description: "Summarize entire discovery back to user and get explicit approval to move to PRD Review")
+TaskCreate(subject: "Project Naming", description: "Establish internal project name from folder name or user brainstorming")
 ```
 
 Mark each task `in_progress` when you begin working on it, and `completed` once you've documented its outputs. You do not need to finish one task before starting another — mark them as the conversation naturally covers them.
@@ -81,6 +152,8 @@ Skill(skill: "doc-update", args: "memory/project-brief.yaml raw_vision")
 
 **Complete:** `TaskUpdate(subject: "Capture Free-Form Vision", status: "completed")`
 
+**Next:** Proceed to Section 2 (Understand the Problem)
+
 ---
 
 ### 2. Understand the Problem
@@ -118,7 +191,49 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Before documenting, ask at least one open-ended question based on their answers. Explore: who experiences this problem, why now, what exists today, what alternatives have been tried and why they fall short. Do not mark the task complete until you've captured context beyond the structured options.
+**Follow-up (required):** After the user answers the initial questions, use AskUserQuestion to probe deeper. Do not mark the task complete until you've captured context beyond the structured options.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Current approach",
+      "question": "How do you currently handle this problem?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Manual / ad-hoc", "description": "I handle it manually with no system"},
+        {"label": "Existing tools", "description": "I use apps/services that partially work"},
+        {"label": "Custom solution", "description": "I've built something myself"},
+        {"label": "No approach", "description": "I've been living with the problem"}
+      ]
+    },
+    {
+      "header": "Why now",
+      "question": "What's driving you to solve this now?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Pain threshold", "description": "The problem has become unbearable"},
+        {"label": "New opportunity", "description": "I have time/resources to tackle it"},
+        {"label": "External trigger", "description": "Something changed that forced this"},
+        {"label": "Curiosity", "description": "I'm exploring whether a solution exists"}
+      ]
+    },
+    {
+      "header": "Failed attempts",
+      "question": "What have you tried before and why didn't it work?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Never tried", "description": "First time looking for a solution"},
+        {"label": "Tools fell short", "description": "Existing apps don't fit my needs"},
+        {"label": "Too complex", "description": "Previous attempts were overwhelming"},
+        {"label": "Wrong approach", "description": "I tried the wrong type of solution"}
+      ]
+    }
+  ]
+})
+```
+
+If the user selects "Other" for any question, they'll provide detailed context. Capture their answers in the memory bank.
 
 **Document in memory/project-brief.yaml:**
 Update `overview`, `current_landscape`, and `goals` fields. See `.claude/rules/project-brief.md` for completion rules.
@@ -129,6 +244,8 @@ Skill(skill: "doc-update", args: "memory/project-brief.yaml overview current_lan
 ```
 
 **Complete:** `TaskUpdate(subject: "Understand the Problem", status: "completed")`
+
+**Next:** Proceed to Section 3 (Generate Personas)
 
 ---
 
@@ -178,6 +295,8 @@ The skill will:
 
 **Complete:** `TaskUpdate(subject: "Generate Personas and Stories", status: "completed")`
 
+**Next:** Proceed to Section 5 (Map Stakeholders and Users)
+
 ---
 
 ### 5. Map Stakeholders and Users
@@ -214,7 +333,36 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** After the user answers, ask at least one open-ended question to identify decision-makers, approvers, and any affected stakeholders not in the primary user list. Explore distinct segments if they exist. Do not mark the task complete until you've captured specific names/roles and their goals.
+**Follow-up (required):** After the user answers, use AskUserQuestion to identify decision-makers, approvers, and any affected stakeholders. Do not mark the task complete until you've captured specific names/roles and their goals.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Decision-makers",
+      "question": "Who approves or influences what gets built?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Just me", "description": "I'm the sole decision-maker"},
+        {"label": "Team lead / manager", "description": "Someone in my org approves"},
+        {"label": "Client / customer", "description": "External stakeholder has final say"},
+        {"label": "Multiple approvers", "description": "Several people need to sign off"}
+      ]
+    },
+    {
+      "header": "Affected parties",
+      "question": "Who else is affected by this product besides primary users?",
+      "multiSelect": false,
+      "options": [
+        {"label": "No one else", "description": "Just the primary users are affected"},
+        {"label": "Support/admin staff", "description": "People who maintain or support the system"},
+        {"label": "Other teams", "description": "Adjacent teams whose work intersects"},
+        {"label": "External partners", "description": "Vendors, suppliers, or partners impacted"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/product-context.yaml:**
 Update `stakeholders`, `target_users`, and `user_needs` fields. See `.claude/rules/product-context.md` for completion rules.
@@ -225,6 +373,8 @@ Skill(skill: "doc-update", args: "memory/product-context.yaml stakeholders targe
 ```
 
 **Complete:** `TaskUpdate(subject: "Map Stakeholders and Users", status: "completed")`
+
+**Next:** Proceed to Section 6 (Capture Requirements)
 
 ---
 
@@ -264,7 +414,36 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Ask at least one open-ended question to distinguish P0 (must-have) from P1 (important) and P2 (nice-to-have). Probe for non-functional requirements that have measurable targets. Ask: "What would you cut if we ran out of time?" to surface true priorities. Do not mark the task complete until priorities are grounded in user need, not wishful thinking.
+**Follow-up (required):** Use AskUserQuestion to distinguish P0/P1/P2 priorities and probe for measurable targets. Do not mark the task complete until priorities are grounded in user need.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Priority test",
+      "question": "If we ran out of time, what would you cut first?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Keep all P0", "description": "Must-haves are truly non-negotiable"},
+        {"label": "Cut from P0", "description": "Some must-haves could become nice-to-have"},
+        {"label": "Cut integrations", "description": "Connections to other systems are expendable"},
+        {"label": "Cut non-functional", "description": "Performance/security can be deferred"}
+      ]
+    },
+    {
+      "header": "Measurable targets",
+      "question": "Do your requirements have specific, measurable targets?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Yes", "description": "I have numbers/metrics for key requirements"},
+        {"label": "Some", "description": "A few have targets, others are qualitative"},
+        {"label": "No", "description": "Requirements describe what but not how well"},
+        {"label": "Need help", "description": "I want guidance on setting measurable targets"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/product-context.yaml:**
 Update `features` and `non_functional` fields. See `.claude/rules/product-context.md` for completion rules.
@@ -277,6 +456,8 @@ Skill(skill: "doc-update", args: "memory/product-context.yaml features non_funct
 **Confirm (required):** Before marking complete, summarize the features and requirements in plain language and ask: "Does this capture everything the system must do? Any requirements that are missing or don't belong?" Only mark `completed` after the user confirms or corrects.
 
 **Complete:** `TaskUpdate(subject: "Capture Requirements", status: "completed")`
+
+**Next:** Proceed to Section 7 (Define Scope Boundaries)
 
 ---
 
@@ -305,7 +486,36 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Ask at least one open-ended question to capture anything users might expect that we won't deliver, and where this product ends and other systems begin. Ask: "What might a user ask for that we'd say 'no, that's not what this is for' to?" Do not mark the task complete until out-of-scope is as detailed as in-scope.
+**Follow-up (required):** Use AskUserQuestion to capture expectations we won't meet and boundaries with other systems. Do not mark the task complete until out-of-scope is as detailed as in-scope.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "User expectations",
+      "question": "What might a user ask for that you'd say 'no, that's not what this is for'?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Clear boundary", "description": "I can articulate what we won't do"},
+        {"label": "Unclear boundary", "description": "I'm not sure where to draw the line"},
+        {"label": "Everything included", "description": "I plan to cover all related needs"},
+        {"label": "Future phases", "description": "Some things will come later but not now"}
+      ]
+    },
+    {
+      "header": "System boundary",
+      "question": "Where does this product end and other systems begin?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Clear handoff", "description": "I know what upstream/downstream systems handle"},
+        {"label": "Integration needed", "description": "This product connects to other systems"},
+        {"label": "Standalone", "description": "This product works independently"},
+        {"label": "Unclear boundary", "description": "I need to think through the edges"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/project-brief.yaml:**
 Update `in_scope` and `out_of_scope` fields. See `.claude/rules/project-brief.md` for completion rules.
@@ -318,6 +528,8 @@ Skill(skill: "doc-update", args: "memory/project-brief.yaml in_scope out_of_scop
 **Confirm (required):** Before marking complete, summarize the scope boundaries in plain language and ask: "Are you comfortable saying 'no' to everything in the out-of-scope list? Anything that should move into scope?" Only mark `completed` after the user confirms or corrects.
 
 **Complete:** `TaskUpdate(subject: "Define Scope Boundaries", status: "completed")`
+
+**Next:** Proceed to Section 8 (Define Success Criteria)
 
 ---
 
@@ -358,7 +570,36 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Ask at least one open-ended question to get specific, measurable targets where possible. Ask: "If we shipped but didn't hit [selected criteria], would you still launch?" to surface hidden requirements. Do not mark the task complete until each criterion has a concrete definition of "done."
+**Follow-up (required):** Use AskUserQuestion to get specific, measurable targets and surface hidden requirements. Do not mark the task complete until each criterion has a concrete definition of "done."
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Measurable criteria",
+      "question": "Can you put specific numbers on your success criteria?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Yes", "description": "I have specific metrics for each criterion"},
+        {"label": "Some", "description": "A few criteria have numbers, others are qualitative"},
+        {"label": "No", "description": "Success criteria describe outcomes but not measures"},
+        {"label": "Need help", "description": "I want guidance on defining measurable success"}
+      ]
+    },
+    {
+      "header": "Launch flexibility",
+      "question": "If we shipped but didn't hit some criteria, would you still launch?",
+      "multiSelect": false,
+      "options": [
+        {"label": "All required", "description": "Every criterion must be met before launch"},
+        {"label": "Core required", "description": "Only P0 criteria are blocking"},
+        {"label": "Flexible", "description": "I'd launch with partial success and iterate"},
+        {"label": "Need to discuss", "description": "I'm not sure what's truly blocking"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/project-brief.yaml:**
 Update `success_criteria` field. See `.claude/rules/project-brief.md` for completion rules.
@@ -369,6 +610,8 @@ Skill(skill: "doc-update", args: "memory/project-brief.yaml success_criteria")
 ```
 
 **Complete:** `TaskUpdate(subject: "Define Success Criteria", status: "completed")`
+
+**Next:** Proceed to Section 9 (Identify Constraints and Dependencies)
 
 ---
 
@@ -409,7 +652,36 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Ask at least one open-ended question to get specific details on any hard constraints or dependencies that could become blockers. Ask: "What would cause this project to fail that's outside our control?" Do not mark the task complete until constraints have dates/numbers and dependencies have owners.
+**Follow-up (required):** Use AskUserQuestion to get specific details on constraints and dependencies. Do not mark the task complete until constraints have dates/numbers and dependencies have owners.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Constraint details",
+      "question": "Do your constraints have specific dates, numbers, or boundaries?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Yes", "description": "I have specific dates/amounts/limits"},
+        {"label": "Soft constraints", "description": "Constraints exist but are negotiable"},
+        {"label": "Unknown", "description": "I need to clarify what constraints apply"},
+        {"label": "No constraints", "description": "This effort has no hard limits"}
+      ]
+    },
+    {
+      "header": "Dependency owners",
+      "question": "Who owns or controls the external dependencies you identified?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Known owners", "description": "I know who to contact for each dependency"},
+        {"label": "Some unknown", "description": "A few dependencies have unclear ownership"},
+        {"label": "Public/vendor", "description": "Dependencies are public APIs or vendor services"},
+        {"label": "No dependencies", "description": "This effort is self-contained"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/project-brief.yaml:**
 Update `constraints` and `dependencies` fields. See `.claude/rules/project-brief.md` for completion rules.
@@ -420,6 +692,8 @@ Skill(skill: "doc-update", args: "memory/project-brief.yaml constraints dependen
 ```
 
 **Complete:** `TaskUpdate(subject: "Identify Constraints and Dependencies", status: "completed")`
+
+**Next:** Proceed to Section 10 (Surface Risks, Assumptions, and Open Questions)
 
 ---
 
@@ -459,7 +733,37 @@ AskUserQuestion({
 })
 ```
 
-**Follow-up (required):** Ask at least one open-ended question to draw out specific risks, underlying assumptions, and to triage any open questions as blocking or non-blocking. Ask: "What's the one thing that would derail this project if it went wrong?" Do not mark the task complete until risks have likelihood/impact and assumptions are explicitly stated.
+**Follow-up (required):** Use AskUserQuestion to draw out specific risks and underlying assumptions. Do not mark the task complete until risks have likelihood/impact and assumptions are explicitly stated.
+
+```json
+AskUserQuestion({
+  "questions": [
+    {
+      "header": "Top risk",
+      "question": "What's the one thing that would derail this project if it went wrong?",
+      "multiSelect": false,
+      "options": [
+        {"label": "Technical risk", "description": "Building it is harder than expected"},
+        {"label": "User/adoption risk", "description": "People won't use it as hoped"},
+        {"label": "Dependency risk", "description": "Something outside our control fails"},
+        {"label": "Scope risk", "description": "Requirements grow beyond what we can deliver"},
+        {"label": "No single risk", "description": "Multiple risks but none stands out"}
+      ]
+    },
+    {
+      "header": "Hidden assumptions",
+      "question": "What are you taking for granted that might not be true?",
+      "multiSelect": false,
+      "options": [
+        {"label": "User assumptions", "description": "Assuming users will behave a certain way"},
+        {"label": "Tech assumptions", "description": "Assuming technology will work as expected"},
+        {"label": "Resource assumptions", "description": "Assuming time/people/budget will be available"},
+        {"label": "No assumptions", "description": "I've thought through the uncertainties"}
+      ]
+    }
+  ]
+})
+```
 
 **Document in memory/product-context.yaml:**
 Update `risks`, `assumptions`, and `open_questions` fields. See `.claude/rules/product-context.md` for completion rules.
@@ -470,6 +774,8 @@ Skill(skill: "doc-update", args: "memory/product-context.yaml risks assumptions 
 ```
 
 **Complete:** `TaskUpdate(subject: "Surface Risks, Assumptions, and Open Questions", status: "completed")`
+
+**Next:** Proceed to Section 11 (Establish Key Terms)
 
 ---
 
@@ -491,15 +797,36 @@ Skill(skill: "doc-update", args: "memory/product-context.yaml glossary")
 
 **Complete:** `TaskUpdate(subject: "Establish Key Terms", status: "completed")`
 
+**Next:** Proceed to Section 12 (User Confirmation & Handoff Readiness)
+
 ---
 
 ### 12. User Confirmation & Handoff Readiness
 
 **Start:** `TaskUpdate(subject: "User Confirmation & Handoff Readiness", status: "in_progress")`
 
-Before moving to PRD Review, summarize everything captured in this phase back to the user in plain language. This is the final quality gate — the user must explicitly approve the discovery outputs before handoff.
+Before moving to PRD Review, you must process any parked information and get explicit user approval.
 
-**Summarize and confirm:**
+**Step 1: Process `notes` parking lot**
+
+Read `notes` fields from both YAML files. For each item, move to the correct structured section:
+
+| If notes contains... | Move to... |
+|---------------------|------------|
+| User characteristics (ADHD, preferences) | `product-context.yaml` → `user_needs` |
+| Feature ideas, personalization | `product-context.yaml` → `features` |
+| Document types, file formats | `project-brief.yaml` → `scope.in_scope` |
+| Constraints (privacy, local-only) | `project-brief.yaml` → `constraints` |
+| Risks, concerns | `product-context.yaml` → `risks` |
+| Questions, unknowns | `product-context.yaml` → `open_questions` |
+| Domain terms | `product-context.yaml` → `glossary` |
+
+**Gate check:**
+- Both `notes` fields must be empty (or contain only truly unstructured anecdotes)
+- All parked items must be moved to structured sections
+- Use `/doc-update` skill to update affected sections
+
+**Step 2: Summarize and confirm**
 
 Present a structured summary covering:
 - Problem and goals
@@ -532,11 +859,78 @@ If the user selects "Minor corrections needed" or "Not ready yet", loop back to 
 
 **Complete:** `TaskUpdate(subject: "User Confirmation & Handoff Readiness", status: "completed")`
 
+**Next:** Proceed to Project Naming
+
+---
+
+## Section 13: Project Naming
+
+This step establishes the internal project name for use throughout all subsequent phases and documentation.
+
+**Task:** `TaskUpdate(subject: "Project Naming", status: "in_progress")`
+
+**Step 1: Extract folder name.**
+
+Use Bash to identify the root folder name of the project directory:
+
+```bash
+basename "$PWD"
+```
+
+This gives us a candidate name based on where the user is working.
+
+**Step 2: Present naming options.**
+
+Use AskUserQuestion to offer the user a choice:
+
+```
+AskUserQuestion:
+questions:
+  - question: "What should we call this project internally? This name will be used in all documentation, file headers, and phase outputs."
+    header: "Project Name"
+    options:
+      - label: "Use folder name"
+        description: "Use the current folder name as the internal project identifier"
+      - label: "Brainstorm together"
+        description: "Let's discuss and find a name that resonates with the project's purpose"
+      - label: "I have a name"
+        description: "You already know what you want to call it"
+    multiSelect: false
+```
+
+**If user selects "Use folder name":**
+- Accept the folder name as `project_name`
+- Proceed to Step 3
+
+**If user selects "Brainstorm together":**
+- Ask 2-3 clarifying questions about the project's essence (purpose, feeling, metaphor)
+- Propose 3-5 name options based on those answers
+- Use AskUserQuestion to let user pick one
+
+**If user selects "I have a name":**
+- Use AskUserQuestion with "Other" option to capture the user's chosen name
+
+**Step 3: Document the name.**
+
+Update `memory/project-brief.yaml` with the chosen name:
+
+```yaml
+project:
+  name: "[chosen_name]"
+  internal_id: "[chosen_name]"  # Used in requirement IDs, file headers
+```
+
+Use `/doc-update` skill to apply this change.
+
+**Complete:** `TaskUpdate(subject: "Project Naming", status: "completed")`
+
+**Next:** Proceed to Close Session
+
 ---
 
 ## Close Session
 
-Before closing, run `TaskList` to confirm all 11 tasks are `completed`. If any are still `in_progress` or `pending`, return to that activity before proceeding.
+Before closing, run `TaskList` to confirm all 12 tasks are `completed`. If any are still `in_progress` or `pending`, return to that activity before proceeding.
 
 After all tasks are complete and output files are generated, update `memory/progress.yaml`:
 
@@ -565,13 +959,14 @@ This will route back to `phases/01-prd-discovery.md` via the `on_incomplete` pat
 
 1. `memory/project-brief.yaml` — Goals, scope boundaries, constraints, dependencies, success criteria
 2. `memory/product-context.yaml` — Users, stakeholders, requirements, features, risks, assumptions, glossary
-3. `memory/current-state.yaml` — Phase complete, ready for Phase 02
+3. `memory/user-stories.yaml` — User stories generated by persona agents
+4. `memory/current-state.yaml` — Phase complete, ready for Phase 02
 
 ## Exit Criteria
 
 Before transitioning to Phase 02:
 
-- [ ] All discovery tasks marked `completed` in task list
+- [ ] All discovery tasks marked `completed` in task list (12 tasks)
 - [ ] Problem and current landscape are understood
 - [ ] Stakeholders and user personas are defined
 - [ ] Requirements are captured and prioritized (P0/P1/P2)
@@ -582,6 +977,7 @@ Before transitioning to Phase 02:
 - [ ] Open questions are triaged — blocking items are resolved or have a plan
 - [ ] **Anti-pattern check passed** (no vague terms in requirements)
 - [ ] **User confirmation received** (Section 12 completed with explicit approval)
+- [ ] **Project name established** (Section 13 completed)
 - [ ] User approves the PRD and transition to Phase 02
 
 ### Anti-Pattern Checklist
@@ -627,10 +1023,44 @@ Use consistent ID prefixes for traceability across all phases:
 
 **Traceability:** Each ID should be traceable from Phase 01 → Phase 04 → Phase 07. If a feature is cut, all related IDs should be marked `status: REMOVED`.
 
+## Gate Passage: Session Reset
+
+Once the user confirms gate approval (all exit criteria met, anti-pattern check passed):
+
+**Step 1: Update state files before prompting user.**
+
+Update both files to reflect phase completion:
+
+| File | Field | Update to |
+|------|-------|-----------|
+| `memory/current-state.yaml` | `active_phase` | `"01-PRD_DISCOVERY"` (stays same until Review completes) |
+| `memory/current-state.yaml` | `status` | `"PHASE_COMPLETE"` |
+| `memory/current-state.yaml` | `gates_passed[0].satisfied_at` | Today's date (YYYY-MM-DD) |
+| `memory/progress.yaml` | `phase_gates[0].status` | `"COMPLETE"` |
+| `memory/progress.yaml` | `phase_gates[0].human_approved` | `true` |
+| `memory/progress.yaml` | `phase_gates[0].approved_at` | Today's date (YYYY-MM-DD) |
+
+Use `/doc-update` to apply these changes.
+
+**Step 2: Prompt user for session reset.**
+
+**Say exactly:**
+
+> "Phase 01 Discovery is complete. All documents are saved to the memory bank.
+>
+> Before proceeding to Phase 01 Review, please reset the session:
+> 1. Run `/close-session` to archive this conversation
+> 2. Run `/clear` to reset context
+> 3. Tell me: 'Proceed to Phase 01 Review'
+>
+> This clears accumulated context so the Review phase runs with a fresh working memory."
+
+**Do not proceed to Phase 01 Review until the user confirms they have reset.**
+
 ## Tips
 
 - **Follow the conversation, not the checklist.** Backfill structure after the discussion, not during it.
-- **The AskUserQuestion options are starters, not limits.** They prompt the user to think — always follow up with open questions to get the full picture.
+- **The AskUserQuestion options are starters, not limits.** The "Other" option allows free-form input for detailed answers. Options help users think; "Other" lets them elaborate.
 - **Focus on "what" not "how."** Implementation decisions come in later phases.
 - **Out-of-scope is as important as in-scope.** If you skip it, scope will creep.
 - **Separate launch criteria from outcome criteria.** "It's shippable" and "it's working" are different questions.
@@ -640,3 +1070,4 @@ Use consistent ID prefixes for traceability across all phases:
 - **Scale to the effort.** A weekend prototype and a multi-team platform need different levels of rigor. For smaller efforts, collapse sections and keep it lean.
 - **Avoid vague terms.** Replace "fast", "easy", "user-friendly" with specific, measurable targets. If you can't test it, rephrase it.
 - **Use consistent IDs.** FTR-XXX for features, NFR-XXX for non-functional, US-XXX for user stories. Makes traceability across phases possible.
+- **Structured sections FIRST, notes LAST.** Do not write to `notes` until Section 12 (Handoff Readiness). If information fits a structured field, put it there — not in notes. Notes is for truly unstructured capture, not a shortcut.

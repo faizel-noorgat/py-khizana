@@ -115,24 +115,31 @@ Each agent returns user stories written from that persona's perspective. Collect
 
 **Output structure:**
 
+Write to **`memory/user-stories.yaml`**:
 ```yaml
-features_discovered:
-  - id: "FTR-001"
-    name: "[Feature name from story, e.g., 'Series Tracker']"
-    stories:
-      - "US-001"
-      - "US-005"  # if multiple personas want same feature
-    priority_hint: "HIGH"  # if mentioned by primary persona or multiple personas
-
 user_stories:
   - id: "US-001"
-    persona: "P-001"
+    persona_id: "P-001"
+    title: "Series Tracker"
     story: "As Book Collector, I want to see which books belong to a series and their reading order, So that I can spot missing volumes and read them in sequence."
-    feature: "FTR-001"
     acceptance_criteria:
       - "Given I have books from 'The Stormlight Archive', when I view the series, then I see books 1-5 in order with gaps highlighted"
       - "Given a book is part of a series, when I view its details, then I see 'Book 3 of 5'"
-    priority: "HIGH"
+    priority: "P0"
+    status: "PENDING"
+    notes: ""
+```
+
+Write to **`memory/product-context.yaml`** (features only):
+```yaml
+features_discovered:
+  - id: "FTR-001"
+    name: "Series Tracker"
+    description: "See book series order and spot missing volumes"
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
+    requested_by: ["P-001"]
+    user_stories: ["US-001"]
 ```
 
 ### Step 4: Present for Feature Discovery
@@ -195,44 +202,43 @@ This step is where the real discovery happens — the user often realizes they w
 
 ### Step 6: Document
 
-After user confirms their feature selections, save to `memory/product-context.yaml`:
+After user confirms their feature selections, save to two files:
 
-**Write two sections:**
+**1. `memory/user-stories.yaml` — All user stories:**
 
-1. **`features_discovered`** — Archive of discovery session (all features explored):
+```yaml
+user_stories:
+  - id: "US-001"
+    persona_id: "P-001"
+    title: "Series order viewing"
+    story: "As Book Collector, I want to see which books belong to a series and their reading order, So that I can spot missing volumes and read them in sequence."
+    acceptance_criteria:
+      - "Given I have books from a series, when I view series view, then I see all volumes in order with gaps highlighted"
+      - "Given a book is in a series, when I view its details, then I see 'Book X of Y'"
+    priority: "P0"
+    status: "PENDING"
+    notes: ""
+```
+
+**2. `memory/product-context.yaml` — Features only:**
+
 ```yaml
 features_discovered:
   - id: "FTR-001"
     name: "Series Tracker"
     description: "See book series order and spot missing volumes"
-    discovery_status: "WANTED"  # WANTED | MAYBE | NOT_NEEDED
-    priority_hint: "HIGH"  # HIGH | MEDIUM | LOW
+    discovery_status: "WANTED"
+    priority_hint: "HIGH"
     requested_by: ["P-001"]
     user_stories: ["US-001"]
-```
 
-2. **`features`** — Active working list (only WANTED features, converted to project priorities):
-```yaml
 features:
   - id: "FTR-001"
     description: "Series Tracker - See book series order and spot missing volumes"
-    priority: "P0"  # HIGH hint → P0, MEDIUM hint → P1, LOW/no hint → P2
-    status: "PENDING"  # All new features start as PENDING
+    priority: "P0"
+    status: "PENDING"
     requested_by: ["P-001"]
     user_stories: ["US-001"]
-```
-
-3. **`user_stories`** — All stories generated:
-```yaml
-user_stories:
-  - id: "US-001"
-    persona: "P-001"
-    story: "As Book Collector, I want to see which books belong to a series and their reading order, So that I can spot missing volumes and read them in sequence."
-    feature: "FTR-001"
-    acceptance_criteria:
-      - "Given I have books from a series, when I view series view, then I see all volumes in order with gaps highlighted"
-      - "Given a book is in a series, when I view its details, then I see 'Book X of Y'"
-    priority: "HIGH"
 ```
 
 **Priority conversion rule:**
