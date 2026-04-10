@@ -108,6 +108,7 @@ TaskCreate(subject: "Identify Constraints and Dependencies", description: "Time,
 TaskCreate(subject: "Surface Risks, Assumptions, and Open Questions", description: "Risks, assumptions, blocking vs non-blocking open questions")
 TaskCreate(subject: "Establish Key Terms", description: "Domain-specific language and glossary")
 TaskCreate(subject: "User Confirmation & Handoff Readiness", description: "Summarize entire discovery back to user and get explicit approval to move to PRD Review")
+TaskCreate(subject: "Project Naming", description: "Establish internal project name from folder name or user brainstorming")
 ```
 
 Mark each task `in_progress` when you begin working on it, and `completed` once you've documented its outputs. You do not need to finish one task before starting another — mark them as the conversation naturally covers them.
@@ -858,13 +859,78 @@ If the user selects "Minor corrections needed" or "Not ready yet", loop back to 
 
 **Complete:** `TaskUpdate(subject: "User Confirmation & Handoff Readiness", status: "completed")`
 
+**Next:** Proceed to Project Naming
+
+---
+
+## Section 13: Project Naming
+
+This step establishes the internal project name for use throughout all subsequent phases and documentation.
+
+**Task:** `TaskUpdate(subject: "Project Naming", status: "in_progress")`
+
+**Step 1: Extract folder name.**
+
+Use Bash to identify the root folder name of the project directory:
+
+```bash
+basename "$PWD"
+```
+
+This gives us a candidate name based on where the user is working.
+
+**Step 2: Present naming options.**
+
+Use AskUserQuestion to offer the user a choice:
+
+```
+AskUserQuestion:
+questions:
+  - question: "What should we call this project internally? This name will be used in all documentation, file headers, and phase outputs."
+    header: "Project Name"
+    options:
+      - label: "Use folder name"
+        description: "Use the current folder name as the internal project identifier"
+      - label: "Brainstorm together"
+        description: "Let's discuss and find a name that resonates with the project's purpose"
+      - label: "I have a name"
+        description: "You already know what you want to call it"
+    multiSelect: false
+```
+
+**If user selects "Use folder name":**
+- Accept the folder name as `project_name`
+- Proceed to Step 3
+
+**If user selects "Brainstorm together":**
+- Ask 2-3 clarifying questions about the project's essence (purpose, feeling, metaphor)
+- Propose 3-5 name options based on those answers
+- Use AskUserQuestion to let user pick one
+
+**If user selects "I have a name":**
+- Use AskUserQuestion with "Other" option to capture the user's chosen name
+
+**Step 3: Document the name.**
+
+Update `memory/project-brief.yaml` with the chosen name:
+
+```yaml
+project:
+  name: "[chosen_name]"
+  internal_id: "[chosen_name]"  # Used in requirement IDs, file headers
+```
+
+Use `/doc-update` skill to apply this change.
+
+**Complete:** `TaskUpdate(subject: "Project Naming", status: "completed")`
+
 **Next:** Proceed to Close Session
 
 ---
 
 ## Close Session
 
-Before closing, run `TaskList` to confirm all 11 tasks are `completed`. If any are still `in_progress` or `pending`, return to that activity before proceeding.
+Before closing, run `TaskList` to confirm all 12 tasks are `completed`. If any are still `in_progress` or `pending`, return to that activity before proceeding.
 
 After all tasks are complete and output files are generated, update `memory/progress.yaml`:
 
@@ -900,7 +966,7 @@ This will route back to `phases/01-prd-discovery.md` via the `on_incomplete` pat
 
 Before transitioning to Phase 02:
 
-- [ ] All discovery tasks marked `completed` in task list
+- [ ] All discovery tasks marked `completed` in task list (12 tasks)
 - [ ] Problem and current landscape are understood
 - [ ] Stakeholders and user personas are defined
 - [ ] Requirements are captured and prioritized (P0/P1/P2)
@@ -911,6 +977,7 @@ Before transitioning to Phase 02:
 - [ ] Open questions are triaged — blocking items are resolved or have a plan
 - [ ] **Anti-pattern check passed** (no vague terms in requirements)
 - [ ] **User confirmation received** (Section 12 completed with explicit approval)
+- [ ] **Project name established** (Section 13 completed)
 - [ ] User approves the PRD and transition to Phase 02
 
 ### Anti-Pattern Checklist
@@ -955,6 +1022,40 @@ Use consistent ID prefixes for traceability across all phases:
 | `OQ-` | Open Questions | 001-099 | OQ-001: Pricing model TBD |
 
 **Traceability:** Each ID should be traceable from Phase 01 → Phase 04 → Phase 07. If a feature is cut, all related IDs should be marked `status: REMOVED`.
+
+## Gate Passage: Session Reset
+
+Once the user confirms gate approval (all exit criteria met, anti-pattern check passed):
+
+**Step 1: Update state files before prompting user.**
+
+Update both files to reflect phase completion:
+
+| File | Field | Update to |
+|------|-------|-----------|
+| `memory/current-state.yaml` | `active_phase` | `"01-PRD_DISCOVERY"` (stays same until Review completes) |
+| `memory/current-state.yaml` | `status` | `"PHASE_COMPLETE"` |
+| `memory/current-state.yaml` | `gates_passed[0].satisfied_at` | Today's date (YYYY-MM-DD) |
+| `memory/progress.yaml` | `phase_gates[0].status` | `"COMPLETE"` |
+| `memory/progress.yaml` | `phase_gates[0].human_approved` | `true` |
+| `memory/progress.yaml` | `phase_gates[0].approved_at` | Today's date (YYYY-MM-DD) |
+
+Use `/doc-update` to apply these changes.
+
+**Step 2: Prompt user for session reset.**
+
+**Say exactly:**
+
+> "Phase 01 Discovery is complete. All documents are saved to the memory bank.
+>
+> Before proceeding to Phase 01 Review, please reset the session:
+> 1. Run `/close-session` to archive this conversation
+> 2. Run `/clear` to reset context
+> 3. Tell me: 'Proceed to Phase 01 Review'
+>
+> This clears accumulated context so the Review phase runs with a fresh working memory."
+
+**Do not proceed to Phase 01 Review until the user confirms they have reset.**
 
 ## Tips
 

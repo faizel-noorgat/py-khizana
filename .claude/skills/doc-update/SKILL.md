@@ -147,6 +147,11 @@ Before spawning the sub-agent:
 | glossary | product-context.yaml | Key-value pairs |
 | user_personas | product-context.yaml | Structured persona objects |
 | user_stories | product-context.yaml | List with US-XXX IDs |
+| active_phase | current-state.yaml | Phase ID string (e.g., "01-PRD_DISCOVERY") |
+| status | current-state.yaml | Status string: ACTIVE | BLOCKED | PHASE_COMPLETE |
+| gates_passed | current-state.yaml | Array of phase gates with satisfied_at dates |
+| phase_gates | progress.yaml | Array of phase tracking objects |
+| decisions_log | progress.yaml | Array of decision objects with DEC-XXX IDs |
 
 ## Nested Field Handling
 
@@ -185,6 +190,10 @@ When updating a nested field like `in_scope`, grep the rules file for `### in_sc
 |----------|------------|----------|
 | project-brief.yaml | .claude/rules/project-brief.md | raw_vision, overview, current_landscape, goals, in_scope, out_of_scope, success_criteria, constraints, dependencies |
 | product-context.yaml | .claude/rules/product-context.md | stakeholders, target_users, user_needs, features, features_discovered, functional, non_functional, risks, assumptions, open_questions, glossary, user_personas, user_stories |
+| current-state.yaml | None (no validation rules) | active_phase, status, gates_passed, last_session_summary, pending_human_action |
+| progress.yaml | None (no validation rules) | phase_gates, decisions_log, blocked, notes |
+
+**Note:** State files (current-state.yaml, progress.yaml) update directly without rules validation. Skip Step 4 (Read Rules) for these files.
 
 ## Example
 

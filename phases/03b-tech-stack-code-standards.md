@@ -1,4 +1,4 @@
-# Phase 03b: Tech Stack Code Standards
+# Phase 03b: Tech Stack Code Standards — {{PROJECT_NAME}}
 
 ## Agent Identity
 

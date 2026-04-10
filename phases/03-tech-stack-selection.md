@@ -1,4 +1,4 @@
-# Phase 03: Tech Stack Selection
+# Phase 03: Tech Stack Selection — {{PROJECT_NAME}}
 
 ## Agent Identity
 
