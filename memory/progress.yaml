@@ -15,7 +15,7 @@ phase_gates:
         on_incomplete: "phases/01-prd-discovery.md"
         on_complete: "phases/01-prd-review.md"
       prd_review:
-        complete: false
+        complete: true
         on_incomplete: "phases/01-prd-review.md"
         on_complete: "phases/02-high-level-spec.md"
     exit_criteria:
